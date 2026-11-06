@@ -657,6 +657,8 @@ enum SSHRunner {
         # doubles as a start with a fresh binary.
         CACHE_DIR="$HOME/.cache/olcrtc"
         mkdir -p "$CACHE_DIR/gomod" "$CACHE_DIR/gobuild"
+        # x/net as srv.sh builds it: the pinned core requires v0.55.0, whose DNS
+        # parser panics on a malformed SVCB/HTTPS record (GO-2026-5942).
         podman run --rm \
             --network host \
             -v "$DEPLOY_DIR":/app:Z \
@@ -664,7 +666,7 @@ enum SSHRunner {
             -v "$CACHE_DIR/gobuild":/root/.cache/go-build:Z \
             -w /app \
             \#(AppConstants.serverGoImage) \
-            sh -c "go mod download && go build -trimpath -ldflags='-s -w' -o olcrtc ./cmd/olcrtc"
+            sh -c "go get golang.org/x/net@v0.62.0 && go mod download && go build -trimpath -ldflags='-s -w' -o olcrtc ./cmd/olcrtc"
         # Containers from older installs run with `--restart unless-stopped`,
         # which podman-restart.service does not start after a reboot (it
         # starts restart-policy=always only), and podman 4.9 cannot change the
