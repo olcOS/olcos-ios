@@ -5,19 +5,24 @@
 <h1 align="center">olcOS for iPhone and iPad</h1>
 
 <p align="center">
-  A VPN and SOCKS5 proxy through your own server, carried inside a video call. iOS and iPadOS 17+, SwiftUI.
+  Source code of the olcOS app for iOS and iPadOS 17+ and of the shared Go core.<br>
+  olcOS helps you get around mobile internet whitelists through video calls.
 </p>
 
+> [!IMPORTANT]
+> **Just want to install the app?** This repository holds the source code. The ready-made file and step-by-step
+> iPhone instructions are in the [main olcOS repository](https://github.com/olcOS/olcos/blob/main/README.en.md#iphone-and-ipad)
+> and on the [website](https://olcos.github.io/en/#download).
+
 <p align="center">
-  <a href="https://github.com/olcOS/olcos/releases/latest"><img src="https://img.shields.io/github/v/release/olcOS/olcos?include_prereleases&label=release&color=3A57D9" alt="Latest release"></a>
-  <img src="https://img.shields.io/badge/iOS-17%2B-3A57D9" alt="iOS 17+">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-3A57D9" alt="MIT license"></a>
+  <a href="https://github.com/olcOS/olcos/blob/main/README.en.md#iphone-and-ipad"><img src="docs/assets/btn-iphone-en.png" width="219" height="56" alt="Install on iPhone and iPad"></a>&nbsp;
+  <a href="https://github.com/olcOS/olcos/blob/main/README.en.md#android"><img src="docs/assets/btn-android-en.png" width="159" height="56" alt="Download for Android"></a>
 </p>
 
 <p align="center">
   <a href="https://olcos.github.io/en/">Website</a> ·
-  <a href="https://github.com/olcOS/olcos/releases/latest">Download</a> ·
-  <a href="https://github.com/olcOS/olcos">olcOS</a> ·
+  <a href="https://github.com/olcOS/olcos/blob/main/README.en.md">User guide</a> ·
+  <a href="https://github.com/olcOS/olcos/blob/main/README.en.md#troubleshooting">Troubleshooting</a> ·
   <a href="https://github.com/olcOS/olcos-android">Android</a> ·
   <a href="README.md">Русский</a>
 </p>
@@ -26,10 +31,15 @@
   <img src="docs/assets/screens.png" width="760" alt="olcOS on iPhone: home screen, the whole-server connection and the per-room speed test">
 </p>
 
-olcOS takes the internet of your iPhone or iPad through your own server. The traffic travels inside an ordinary
-video call (Yandex Telemost, Jitsi, SaluteJazz, VK Calls, MTS Link) or straight to the server over Xray
-(VLESS + REALITY). Add a connection from a link, a QR code, a file or a subscription, or let the app install your own
-server over SSH.
+## What it is
+
+olcOS sends the internet traffic of your iPhone or iPad through your own server. The traffic travels inside an
+ordinary video call on VK Calls, Yandex Telemost, SaluteJazz, MTS Link or Jitsi. When mobile internet only works
+through a whitelist, an ordinary VPN can't reach its server, while carriers usually let VK and Yandex calls through.
+Without whitelists the phone can also connect to the server directly over Xray (VLESS + REALITY).
+
+How whitelists work, how to install the app and how to set up a server is explained in the
+[main repository](https://github.com/olcOS/olcos/blob/main/README.en.md).
 
 The app is available in English, Russian and French; switch the language in Settings.
 
@@ -48,44 +58,6 @@ The app is available in English, Russian and French; switch the language in Sett
 - Auto-connect on mobile data and on chosen Wi-Fi networks.
 - Invites for other devices, including invites that allow server management. olcOS for Android accepts them too.
 
-## Install
-
-1. Download the `.ipa` file from the [latest release](https://github.com/olcOS/olcos/releases/latest) or
-   [build it yourself](docs/build.md).
-2. Install it with Sideloadly, AltStore or SideStore.
-3. Open olcOS and add a connection.
-
-With a free Apple ID, iOS does not give the app VPN mode, so only the SOCKS5 proxy works. The device-wide VPN,
-widgets and the Live Activity work when the app is signed with a paid Apple Developer account.
-
-More on the free Apple ID:
-
-- the signature lasts 7 days, then the app has to be re-signed (AltStore and SideStore do it while they run);
-- if AltStore asks what to do with the extensions (the VPN tunnel and the widgets), remove them; they don't work with
-  a free Apple ID anyway;
-- after you tap Connect, a proxy card appears on the home screen with a Use in Telegram button, or the
-  `127.0.0.1` address and port for other apps. In Potatso and Shadowrocket, add the olcOS server to the exceptions;
-  the link is on the same card.
-
-## Connect
-
-1. Tap + in the top right corner and paste a link, scan a QR code, open a file, add a link or subscription, or pick a
-   ready-made list.
-2. If you have a VPS, choose + → My own server (VPS): the app connects over SSH and installs everything. The other way
-   is one command on the server itself (Debian, Ubuntu, Fedora or CentOS, as root):
-
-   ```bash
-   curl -fsSL https://raw.githubusercontent.com/olcOS/olcos/main/install.sh | sudo bash
-   ```
-
-   At the end it prints a QR code. Scan it in olcOS on iPhone or Android and that device becomes the server's owner.
-   Rooms, protocols, invites and core updates are then handled in the app, without SSH.
-3. Tap Connect.
-4. To give access to family or friends, open the server card → Share → Invite a device. Each device gets its own
-   link.
-
-Connection links contain keys. Don't post them publicly.
-
 ## Modes
 
 | | VPN | SOCKS5 proxy |
@@ -94,26 +66,8 @@ Connection links contain keys. Don't post them publicly.
 | Needs a paid signature | yes | no |
 | Whole server | trial, up to three rooms | all rooms |
 
-More about modes and routing in [docs/setup.md](docs/setup.md).
-
-## Limitations
-
-- The VPN carries TCP over IPv4. Apps that need UDP or IPv6 may not work through it.
-- Speed depends on your network and on the call service. A service can close a room or restrict guests.
-- This is a beta, and behaviour and compatibility still change.
-- Use the app within the law of your country and the terms of the services your traffic goes through.
-
-## When something doesn't work
-
-| Problem | What to do |
-|---|---|
-| It won't connect | Open the Connection check on the home screen; it shows which protocol answers. For a subscription, tap Find the fastest and connect. |
-| It's slow | Measure the protocols in the Connection check and connect to the fastest one, or to Whole server if bonding adds speed. |
-| A proxy runs instead of the VPN | The app is signed with a free Apple ID and iOS did not allow the VPN, so olcOS switched to the proxy. Sign it with a paid developer account and choose VPN in Settings. |
-| You need help | Settings → View all logs → Export all logs, then [open an issue](https://github.com/olcOS/olcos/issues/new/choose). Remove keys, passwords and full links from the logs first. |
-
-Report vulnerabilities privately, see [SECURITY.md](SECURITY.md). Diagnostic codes are listed in
-[docs/diagnostic-messages.md](docs/diagnostic-messages.md).
+With a free Apple ID, iOS does not give the app VPN mode, so only the proxy works. More about modes, routing and VPN
+limitations in [docs/setup.md](docs/setup.md).
 
 ## Building from source
 
@@ -134,8 +88,18 @@ Documentation:
 
 - [docs/build.md](docs/build.md): building, tests and release files;
 - [docs/architecture.md](docs/architecture.md): how the app works;
+- [docs/setup.md](docs/setup.md): modes, server setup and diagnostics;
 - [docs/uri.md](docs/uri.md): link and subscription formats;
+- [docs/diagnostic-messages.md](docs/diagnostic-messages.md): diagnostic message codes;
 - [CONTRIBUTING.md](CONTRIBUTING.md): how to propose changes.
+
+## Bugs and security
+
+Report bugs and questions in the [main repository's issues](https://github.com/olcOS/olcos/issues/new/choose). Attach
+the logs (Settings → View all logs → Export all logs) and remove keys, passwords and full links from them first.
+Report vulnerabilities privately, see [SECURITY.md](SECURITY.md).
+
+Use the app within the law of your country and the terms of the services your traffic goes through.
 
 ## Licenses
 
