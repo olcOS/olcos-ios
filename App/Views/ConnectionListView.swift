@@ -488,7 +488,7 @@ struct ConnectionListView: View {
                 sheet = .share(record)
             },
             .action(L10n.copyURIAction.localized(), systemImage: "doc.on.doc") {
-                UIPasteboard.general.string = record.details.shareURI
+                SecretPasteboard.copy(record.details.shareURI)
                 LogStore.shared.log(.connection, L10n.copiedURI_fmt.formatted(record.displayName))
             },
             .action(L10n.actionQR.localized(), systemImage: "qrcode") { sheet = .qr(record) },

@@ -383,7 +383,7 @@ struct InviteLinkSheet: View {
                             }
                             OlcButton(L10n.invitesCopyLink.localized(), systemImage: "doc.on.doc",
                                       role: .secondary, fillWidth: true) {
-                                UIPasteboard.general.string = link
+                                SecretPasteboard.copy(link)
                                 LogStore.shared.log(.connection, "⧉ invite link copied (\(name))")
                                 dismiss()
                             }

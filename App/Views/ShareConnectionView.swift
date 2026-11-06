@@ -155,7 +155,7 @@ struct ShareConnectionPage: View {
                 VStack(spacing: Theme.Metrics.s2) {
                     OlcButton(L10n.copyURIAction.localized(), systemImage: "doc.on.doc",
                               role: .secondary, fillWidth: true) {
-                        UIPasteboard.general.string = uri
+                        SecretPasteboard.copy(uri)
                         LogStore.shared.log(.connection, L10n.copiedURI_fmt.formatted(conn.displayName))
                         dismiss()
                     }

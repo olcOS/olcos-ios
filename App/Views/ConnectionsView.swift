@@ -557,7 +557,7 @@ struct ConnectionsView: View {
             })
             items.append(.divider)
             items.append(.action(L10n.copyURIAction.localized(), systemImage: "doc.on.doc") {
-                UIPasteboard.general.string = conn.details.shareURI
+                SecretPasteboard.copy(conn.details.shareURI)
                 LogStore.shared.log(.connection, L10n.copiedURI_fmt.formatted(conn.displayName))
             })
             items.append(.action(L10n.actionQR.localized(), systemImage: "qrcode") {
