@@ -222,6 +222,11 @@ enum AppConstants {
     /// trips and short enough to fail fast on truly broken hosts.
     static let subscriptionFetchTimeout: TimeInterval = 15
 
+    /// Largest subscription body `SubscriptionFetcher` accepts. Real lists are
+    /// a few dozen kilobytes; the cap keeps a hostile link from filling memory.
+    /// Same 1 MiB limit as olcOS for Android.
+    static let subscriptionMaxBytes = 1 << 20
+
     /// Default Jitsi server base URL sent as `OLCRTC_JITSI_URL` during install.
     /// The server prefixes short room names with this base and uses it for the
     /// auto-generated room when no room is given. Keep in sync with the

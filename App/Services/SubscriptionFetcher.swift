@@ -73,9 +73,23 @@ enum SubscriptionFetcher {
         req.setValue("text/plain,text/markdown,*/*", forHTTPHeaderField: "Accept")
         let session = makeEphemeralSession()
         defer { session.finishTasksAndInvalidate() }
-        let (data, response) = try await session.data(for: req)
+        let (bytes, response) = try await session.bytes(for: req)
         if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
+            bytes.task.cancel()
             throw FetchError.invalidResponse(http.statusCode)
+        }
+        let limit = AppConstants.subscriptionMaxBytes
+        if response.expectedContentLength > Int64(limit) {
+            bytes.task.cancel()
+            throw URLError(.dataLengthExceedsMaximum)
+        }
+        var data = Data()
+        for try await byte in bytes {
+            data.append(byte)
+            if data.count > limit {
+                bytes.task.cancel()
+                throw URLError(.dataLengthExceedsMaximum)
+            }
         }
         guard let str = String(data: data, encoding: .utf8)
                      ?? String(data: data, encoding: .isoLatin1),
@@ -313,6 +327,10 @@ enum NWHTTPSGet {
                 conn.receive(minimumIncompleteLength: 1, maximumLength: 64 * 1024) { chunk, _, isComplete, error in
                     if let chunk, !chunk.isEmpty { collected.append(chunk) }
                     if let error { fail(HTTPError.connection(error)); return }
+                    // Headers plus at most `subscriptionMaxBytes` of body.
+                    if collected.count > AppConstants.subscriptionMaxBytes + 64 * 1024 {
+                        fail(URLError(.dataLengthExceedsMaximum)); return
+                    }
                     if isComplete || Self.isBodyComplete(collected) { succeed(); return }
                     receiveLoop()
                 }
