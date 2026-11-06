@@ -13,8 +13,9 @@ Start with the [product overview](../README.md) ([English](../README.en.md)), th
 | [Contributing](../CONTRIBUTING.md) | Pull requests, style and verification evidence |
 | [Technical contract](../AGENTS.md) | Essential constraints for repository changes |
 
-The public product name is **olcOS**, release **3.0 (build 3)**, tag
-`v3.0.3-beta` in [olcOS/olcos](https://github.com/olcOS/olcos/releases).
+The public product name is **olcOS**, version **3.5 (build 4)**, tag `v3.5`
+in [olcOS/olcos](https://github.com/olcOS/olcos/releases). The release before
+it was 3.0 (build 3), tag `v3.0.3-beta`.
 Internal targets and URI schemes retain their compatible `olcrtc` names; this
 is not a separate protocol. [Project](../project.yml) · [URI implementation](../App/Models/OlcrtcURI.swift).
 
