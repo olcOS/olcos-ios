@@ -5,14 +5,14 @@
 **Do not open a public issue or pull request containing an unpatched
 vulnerability, exploit details or secrets.**
 
-Use GitHub's enabled **[private vulnerability reporting](https://github.com/olcOS/olcos/security/advisories/new)**.
+Use GitHub's **[private vulnerability reporting](https://github.com/olcOS/olcos/security/advisories/new)**.
 Begin with a brief summary in the private report and agree on a suitable
 transfer method before sending sensitive material. Do not send production
 credentials or substitute a public issue.
 
 Include:
 
-- Affected version **and build** (for example `2.0 (2)`), iOS version,
+- Affected version **and build** (for example `3.0 (3)`), iOS version,
   device class, installation/signing method and actual backend.
 - Impact, prerequisites and minimal steps using synthetic/test data.
 - Carrier/transport and relevant network conditions, without real IPs,
@@ -28,16 +28,18 @@ SLA is promised.
 
 ## Scope and supported line
 
-This policy covers the **olcOS 2.0 iOS codebase**, including app integration,
+This policy covers the **olcOS 3.0 iOS codebase** and the shared Go core in this
+repository, including app integration,
 the packet-tunnel extension, local proxy, SSH provisioning, imports, storage
 and diagnostic exports. [Project](project.yml) · [architecture](docs/architecture.md).
 No security-maintenance commitment is made here for older builds or planned
-Android, Windows and macOS clients.
+Windows and macOS clients. Android app reports use the same private channel;
+name the Android version and build.
 
 Report routing leaks, authentication bypasses, secret exposure, unsafe script
 construction, host-key validation defects and misleading security state.
 If a defect is in the underlying core, coordinate with
-[upstream olcrtc](https://github.com/openlibrecommunity/olcrtc) through its own
+[upstream olcrtc](https://github.com/ghostlane-project/olcrtc) through its own
 security guidance; do not publish it to upstream's ordinary issue tracker.
 For uncertain ownership, start with the private reporting channel above.
 

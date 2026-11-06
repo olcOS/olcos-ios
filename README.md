@@ -1,18 +1,147 @@
-<div align="center">
-  <img src="docs/assets/app-icon.png" width="112" height="112" alt="olcOS" />
-  <h1>olcOS</h1>
-  <p>iOS 17+ · SwiftUI · WebRTC · VPN / SOCKS5</p>
-  <p><strong>Beta</strong> · Функции и совместимость могут меняться.</p>
-  <p><strong>Beta</strong> · Features and compatibility may change.</p>
-  <p><strong>3.0 (3)</strong> · <code>v3.0.3</code></p>
-  <br />
-  <h2><a href="README.ru.md">Русский</a> &nbsp; / &nbsp; <a href="README.en.md">English</a></h2>
-  <p>Ваш iPhone. Ваш сервер. Ваше подключение.</p>
-  <p>Your iPhone. Your server. Your connection.</p>
-</div>
+<p align="center">
+  <img src="docs/assets/app-icon.png" width="96" height="96" alt="olcOS">
+</p>
 
----
+<h1 align="center">olcOS для iPhone и iPad</h1>
 
-| [Русский →](README.ru.md) | [English →](README.en.md) |
+<p align="center">
+  VPN и SOCKS5-прокси через ваш сервер внутри видеозвонка. iOS и iPadOS 17+, SwiftUI.
+</p>
+
+<p align="center">
+  <a href="https://github.com/olcOS/olcos/releases/latest"><img src="https://img.shields.io/github/v/release/olcOS/olcos?include_prereleases&label=%D1%80%D0%B5%D0%BB%D0%B8%D0%B7&color=3A57D9" alt="Последний релиз"></a>
+  <img src="https://img.shields.io/badge/iOS-17%2B-3A57D9" alt="iOS 17+">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/%D0%BB%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F-MIT-3A57D9" alt="Лицензия MIT"></a>
+</p>
+
+<p align="center">
+  <a href="https://olcos.github.io">Сайт</a> ·
+  <a href="https://github.com/olcOS/olcos/releases/latest">Скачать</a> ·
+  <a href="https://github.com/olcOS/olcos">olcOS</a> ·
+  <a href="https://github.com/olcOS/olcos-android">Android</a> ·
+  <a href="README.en.md">English</a>
+</p>
+
+<p align="center">
+  <img src="docs/assets/screens.png" width="760" alt="olcOS на iPhone: главный экран, подключение «Весь сервер» и проверка скорости комнат">
+</p>
+
+olcOS ведёт интернет iPhone или iPad через ваш сервер. Трафик идёт внутри обычного видеозвонка (Яндекс Телемост,
+Jitsi, SaluteJazz, VK Звонки, МТС Link) или напрямую на сервер по Xray (VLESS + REALITY). Подключение можно добавить
+по ссылке, QR-коду, файлу или подписке, а свой сервер приложение поставит само по SSH.
+
+Интерфейс на русском, английском и французском, язык меняется в настройках.
+
+## Возможности
+
+- Подключение по ссылке, QR-коду, файлу, подписке или из готовых списков. Если сервер перестал отвечать, приложение
+  само переключится на другой рабочий.
+- Установка своего сервера по SSH. На одном сервере можно держать несколько протоколов и подключаться ко всем сразу:
+  в режиме «Весь сервер» комнаты склеиваются в один канал.
+- Скорость каждого протокола на главном экране и отдельная проверка соединения, где каждая комната замеряется
+  отдельно и все вместе.
+- Российские сайты открываются напрямую, мимо туннеля: банки, Госуслуги и другие. Можно добавить свой список.
+- Режим VPN для всего устройства или SOCKS5-прокси для приложений, которые его поддерживают: Telegram, Potatso,
+  Shadowrocket.
+- Виджеты для экрана «Домой», экрана блокировки и Пункта управления, Live Activity со скоростью в Dynamic Island.
+- Автоподключение на мобильном интернете и в выбранных сетях Wi-Fi.
+- Приглашения для других устройств, в том числе с доступом к управлению сервером. Их принимает и olcOS для Android.
+
+## Установка
+
+1. Скачайте файл `.ipa` из [последнего релиза](https://github.com/olcOS/olcos/releases/latest) или
+   [соберите сами](docs/build.md).
+2. Установите его через Sideloadly, AltStore или SideStore.
+3. Откройте olcOS и добавьте подключение.
+
+С бесплатным Apple ID iOS не даёт приложению режим VPN, поэтому работает только SOCKS5-прокси. VPN для всего
+устройства, виджеты и Live Activity доступны, если подписать приложение платным аккаунтом разработчика Apple.
+
+Ещё про бесплатный Apple ID:
+
+- подпись действует 7 дней, потом приложение нужно переподписать (AltStore и SideStore делают это сами, пока
+  запущены);
+- если AltStore спросит, что делать с расширениями (туннель VPN и виджеты), уберите их, с бесплатным Apple ID они всё
+  равно не работают;
+- после «Подключить» на главном экране появится карточка прокси: кнопка «В Telegram» или адрес `127.0.0.1` и порт
+  для других приложений. Для Potatso и Shadowrocket добавьте сервер olcOS в исключения, ссылка есть на той же
+  карточке.
+
+## Подключение
+
+1. Нажмите «+» в правом верхнем углу и вставьте ссылку, отсканируйте QR-код, откройте файл, добавьте ссылку или
+   подписку либо выберите готовую подборку.
+2. Если есть свой VPS, выберите «+» → «Свой сервер (VPS)»: приложение подключится по SSH и всё установит. Второй
+   вариант — одна команда на самом сервере (Debian, Ubuntu, Fedora или CentOS, от root):
+
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/olcOS/olcos/main/install.sh | sudo bash
+   ```
+
+   В конце команда покажет QR-код. Отсканируйте его в olcOS на iPhone или Android, и это устройство станет
+   владельцем сервера. Комнаты, протоколы, приглашения и обновление ядра дальше делаются в приложении, SSH больше не
+   нужен.
+3. Нажмите «Подключить».
+4. Чтобы дать доступ семье или друзьям, откройте карточку сервера → «Поделиться» → «Пригласить устройство». На
+   каждое устройство создаётся своя ссылка.
+
+Ссылки подключения содержат ключи, не публикуйте их.
+
+## Режимы
+
+| | VPN | SOCKS5-прокси |
+|---|---|---|
+| Что идёт через туннель | всё устройство | приложения, в которых указан прокси |
+| Нужна платная подпись | да | нет |
+| «Весь сервер» | пробно, до трёх комнат | все комнаты |
+
+Подробнее о режимах и маршрутизации — в [docs/setup.md](docs/setup.md).
+
+## Ограничения
+
+- Через VPN идёт TCP поверх IPv4. Приложениям, которым нужны UDP или IPv6, туннель может не подойти.
+- Скорость зависит от вашей сети и от сервиса звонков. Сервис может закрыть комнату или ограничить гостей.
+- Это бета, поведение и совместимость ещё меняются.
+- Пользуйтесь приложением в рамках закона своей страны и правил сервисов, через которые идёт трафик.
+
+## Если что-то не работает
+
+| Проблема | Что сделать |
 |---|---|
-| Возможности, настройка, сборка, архитектура и ограничения. | Features, setup, build instructions, architecture and limitations. |
+| Не подключается | Откройте «Проверку соединения» на главном экране, она покажет, какой протокол отвечает. Для подписки нажмите «Найти самый быстрый и подключиться». |
+| Медленно | Замерьте протоколы в «Проверке соединения» и подключитесь к самому быстрому или ко «Всему серверу», если склейка даёт прибавку. |
+| Вместо VPN работает прокси | Приложение подписано бесплатным Apple ID, и iOS не разрешила VPN. olcOS сам перешёл на прокси. Чтобы получить VPN, подпишите приложение платным аккаунтом разработчика и выберите VPN в настройках. |
+| Нужна помощь | Настройки → «Смотреть все логи» → «Выгрузить все логи», затем [создайте issue](https://github.com/olcOS/olcos/issues/new/choose). Уберите из логов ключи, пароли и полные ссылки. |
+
+Об уязвимостях сообщайте приватно, см. [SECURITY.md](SECURITY.md). Коды диагностических сообщений описаны в
+[docs/diagnostic-messages.md](docs/diagnostic-messages.md).
+
+## Сборка из исходников
+
+Нужны macOS с Xcode 15 или новее, XcodeGen, Go и GitHub CLI.
+
+```bash
+gh repo clone olcOS/olcos-ios -- --recurse-submodules
+cd olcos-ios
+./scripts/build-framework.sh
+xcodegen generate --spec project.yml
+open olcrtc-ios.xcodeproj
+```
+
+В репозитории лежит и общее ядро на Go, его же использует приложение для Android: `gomobile/` (обвязка туннеля,
+склейка комнат и агент сервера), `olcos-core/` (движок Xray) и подмодуль `olcrtc-upstream/`.
+
+Документация:
+
+- [docs/build.md](docs/build.md) — сборка, тесты и релизные файлы;
+- [docs/architecture.md](docs/architecture.md) — как устроено приложение;
+- [docs/uri.md](docs/uri.md) — форматы ссылок и подписок;
+- [CONTRIBUTING.md](CONTRIBUTING.md) — как предложить изменения.
+
+## Лицензии
+
+olcOS распространяется под лицензией [MIT](LICENSE), Copyright (c) 2026 Hotelk52339. Ядро olcrtc
+([ghostlane-project/olcrtc](https://github.com/ghostlane-project/olcrtc), продолжение заархивированного
+[openlibrecommunity/olcrtc](https://github.com/openlibrecommunity/olcrtc)) распространяется под
+[Apache-2.0](olcrtc-upstream/LICENSE) с [NOTICE](olcrtc-upstream/NOTICE), исходная лицензия апстрима —
+[WTFPL](olcrtc-upstream/docs/upstream-license-wtfpl.txt). Движок Xray-core — [MPL-2.0](https://github.com/XTLS/Xray-core/blob/main/LICENSE).

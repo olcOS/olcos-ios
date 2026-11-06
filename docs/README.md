@@ -1,6 +1,6 @@
 # olcOS documentation
 
-Start with the [product overview](../README.md), then choose a guide:
+Start with the [product overview](../README.md) ([English](../README.en.md)), then choose a guide:
 
 | Guide | Audience |
 |---|---|
@@ -13,18 +13,23 @@ Start with the [product overview](../README.md), then choose a guide:
 | [Contributing](../CONTRIBUTING.md) | Pull requests, style and verification evidence |
 | [Technical contract](../AGENTS.md) | Essential constraints for repository changes |
 
-The public product name is **olcOS**, release **2.0 (build 2)**, with tag
-`v2.0.2`. Internal targets and URI schemes retain their compatible `olcrtc`
-names; this is not a separate protocol. [Project](../project.yml) · [URI implementation](../App/Models/OlcrtcURI.swift).
+The public product name is **olcOS**, release **3.0 (build 3)**, tag
+`v3.0.3-beta` in [olcOS/olcos](https://github.com/olcOS/olcos/releases).
+Internal targets and URI schemes retain their compatible `olcrtc` names; this
+is not a separate protocol. [Project](../project.yml) · [URI implementation](../App/Models/OlcrtcURI.swift).
 
-The header artwork in `assets/olcos-preview.png` (Russian) and
-`assets/olcos-preview-en.png` (English) is a **UI concept preview**,
-not a native screenshot, benchmark or test result. It is drawn from the
-current screens and localized strings of the app, including the beam and
-stone-wall hero; the HTML source and render script live in `assets/src/`.
-Android, Windows and macOS are plans only.
+The screenshots in `assets/screens.png` are native app screenshots from a CI
+run. The older `assets/olcos-preview.png` (Russian) and
+`assets/olcos-preview-en.png` (English) are a **UI concept preview**, not a
+native screenshot, benchmark or test result; their HTML source and render
+script live in `assets/src/`. `assets/social-preview.png` is the image for the
+repository's social preview (Settings → Social preview).
 
-The underlying WebRTC core is the separate
-[openlibrecommunity/olcrtc project](https://github.com/openlibrecommunity/olcrtc).
-Follow its documentation for protocol/server details, and use this repository's
-guides for iOS-specific behavior and limitations.
+This repository also holds the Go core shared with the
+[Android app](https://github.com/olcOS/olcos-android): `gomobile/` (the
+tun2socks glue, room bonding and the server agent), `olcos-core/` (the Xray
+engine) and the `olcrtc-upstream/` submodule. The WebRTC core itself is the
+separate [ghostlane-project/olcrtc](https://github.com/ghostlane-project/olcrtc)
+project. Follow its documentation for protocol/server details, and use this
+repository's guides for iOS-specific behavior and limitations. Windows and
+macOS clients are plans only.

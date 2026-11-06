@@ -7,5 +7,5 @@ contact_links:
     url: https://github.com/olcOS/olcos-ios/blob/main/docs/setup.md
     about: Connection modes, automatic SSH trust and VPN support boundaries.
   - name: Upstream olcrtc
-    url: https://github.com/openlibrecommunity/olcrtc
+    url: https://github.com/ghostlane-project/olcrtc
     about: Separate core and protocol project. Use its private security guidance for vulnerabilities, not its ordinary issues.

@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Russian, English and French are welcome. Search existing issues before proposing a large change.
-        This is the iOS app. Android, Windows and macOS are plans, not released olcOS clients.
+        This is the iOS app. Android requests go to https://github.com/olcOS/olcos-android/issues. Windows and macOS are plans, not released olcOS clients.
         **Security reports belong in private:** see [SECURITY.md](https://github.com/olcOS/olcos-ios/blob/main/SECURITY.md).
         Do not attach real IPs, credentials, complete links, QR codes or identifying logs.
   - type: textarea

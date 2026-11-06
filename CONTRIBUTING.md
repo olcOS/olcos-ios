@@ -15,8 +15,9 @@ improvements, translations and documentation. For security issues, use
   owns the core (it continues the archived
   [openlibrecommunity/olcrtc](https://github.com/openlibrecommunity/olcrtc)); if
   ownership is unclear, describe the evidence rather than guessing.
-- Android, Windows and macOS ideas are welcome as proposals, not descriptions
-  of released or currently supported olcOS applications.
+- Android app issues and changes belong in
+  [olcOS/olcos-android](https://github.com/olcOS/olcos-android). Windows and macOS
+  ideas are welcome as proposals, not descriptions of released olcOS applications.
 
 ## Language and naming
 
@@ -77,7 +78,7 @@ step or claim the first connection was independently verified.
 Do not hand-edit generated artifacts to mask a source problem.
 [Project](project.yml) · [build script](scripts/build-framework.sh).
 
-Release identity for olcOS 2.0 is version `2.0`, build `2`, tag `v2.0.2`.
+Release identity for olcOS 3.0 is version `3.0`, build `3`, tag `v3.0.3-beta`.
 The release owner coordinates subsequent build/version changes; contributors
 should not race the build counter or bump it for each pull request.
 Preserve bundle IDs, storage keys and URI compatibility.
