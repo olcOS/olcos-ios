@@ -27,18 +27,21 @@ enum CarrierEndpoints {
     /// picks the first that answers from the server). The hosts mirror
     /// `olcos-core/olcrtc/docs/jitsi.instances.yaml`. On 2026-10-09 a real tunnel
     /// from an NL VPS ran through meet.egovm.ru (~500 KB/s) and meet.riddlerx.org
-    /// (~140 KB/s); the next four answer the probe but passed no data or want a
-    /// login, and the rest were unreachable then — they come and go.
-    /// meet1.arbitr.ru answers only from Russian addresses, so it is last: it
-    /// suits a VPS in Russia. The app default (`AppConstants.defaultJitsiBaseURL`)
-    /// is first.
+    /// (~140 KB/s, data channel). On 2026-11-06, from an NL VPS again, a
+    /// vp8channel tunnel carried ~9 Mbit/s each way on meet.riddlerx.org and
+    /// meet.mamba.group and ~1.5 on conf.expressmoney.com, meet.egovm.ru no
+    /// longer answered from abroad, and meet.mirox.chat and m.catonmoon.com let
+    /// both sides in but passed no data (as in October), so they come late; the
+    /// rest were unreachable — they come and go. meet1.arbitr.ru answers only
+    /// from Russian addresses, so it is last: it suits a VPS in Russia. The app
+    /// default (`AppConstants.defaultJitsiBaseURL`) is first; the order of the
+    /// others follows olcos-core's server/install.sh.
     static let jitsiInstances: [String] = {
         let upstream = [
             "meet.egovm.ru",
             "meet.riddlerx.org",
             "meet.mamba.group",
-            "meet.mirox.chat",
-            "m.catonmoon.com",
+            "conf.expressmoney.com",
             "meet.ecopsy.com",
             "conference.ct.placetime.team",
             "jitsy.amateusfox.online",
@@ -46,9 +49,10 @@ enum CarrierEndpoints {
             "meet.playform.ru",
             "webinar.devknomarylms.ru",
             "zgn-y-vc01.zignotch.com",
-            "conf.expressmoney.com",
             "conf.hyperia.space",
             "jitsi.etudevs.ru",
+            "meet.mirox.chat",
+            "m.catonmoon.com",
             "meet1.arbitr.ru",
         ]
         let preferred = host(fromRoomID: AppConstants.defaultJitsiBaseURL) ?? ""
