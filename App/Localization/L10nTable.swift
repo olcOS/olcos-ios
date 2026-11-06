@@ -348,7 +348,7 @@ enum L10nTable {
         // item is `actionChangeRoomTransport`, on the server card.
         // #461 was: "(vp8channel/sei/video)" and "to datachannel" — raw ids in
         // advice about a picker that spells all four out.
-        .speedDatachannelHint:       "DataChannel is the fastest transport where the service supports it. The video transports (VP8, SEI, Video) carry data as a video stream, which limits speed; switch it in “Change room / transport” in My servers.",
+        .speedSlowJitsiHint:         "Speed depends on the Jitsi server and the transport. Try another transport or another Jitsi server: “Change room / transport” in My servers.",
         .settingsPortLabel:          "Port",
         .checkPortAction:            "Check port",
         .randomPortAction:           "Random",
@@ -1085,10 +1085,10 @@ enum L10nTable {
         .installOptionsLead: "Add a protocol to this server. It shares the encryption key with the installed ones.",
         .throughputA11y_fmt: "Download %@, upload %@",
         .throughputEstimateA11y_fmt: "About %@ through the local SOCKS5 listener — an estimate from loopback traffic, not split by direction",
-        .carrierJitsiDesc: "Public Jitsi servers, no account. The data transport (DataChannel) is recommended; video transports work too. A room name or a full link.",
+        .carrierJitsiDesc: "Public Jitsi servers, no account. VP8 is recommended; DataChannel and the other video transports work too. A room name or a full link.",
         .carrierTelemostDesc: "Needs a Yandex account; olcOS renews the room every 24 hours by itself.",
-        .transportDatachannelDesc: "Data over the service’s own data channel. The fastest transport, where the service supports it.",
-        .transportVp8channelDesc: "Data dressed as a VP8 video stream, so the service sees an ordinary video call. Slower than DataChannel; used by services that give no data channel.",
+        .transportDatachannelDesc: "Data over the service’s own data channel. The only transport on SaluteJazz; on Jitsi slower than VP8 in our tests.",
+        .transportVp8channelDesc: "Data dressed as a VP8 video stream, so the service sees an ordinary video call. The fastest in our tests (about 9 Mbit/s on Jitsi); the frame rate and batch are in Settings.",
         .transportSeichannelDesc: "Data hidden in the video stream’s service blocks (H.264 SEI), with acknowledgements. A slower fallback.",
         .transportVideochannelDesc: "Data drawn as picture frames (QR codes) in the video stream. The slowest fallback; not available in VPN mode.",
         .settingsCarrierEndpointsEmpty: "Add a connection first — the addresses come from its room.",
@@ -2009,7 +2009,7 @@ enum L10nTable {
         // matching the English entry.
         // #461 было: «(vp8channel/sei/video)» и «на datachannel» — сырые id в
         // совете про список, который пишет все четыре словами.
-        .speedDatachannelHint:       "Быстрее всего DataChannel — там, где сервис его поддерживает. Видеотранспорты (VP8, SEI, Video) передают данные видеопотоком, что ограничивает скорость; сменить транспорт можно через «Сменить комнату / транспорт» в разделе «Мои серверы».",
+        .speedSlowJitsiHint:         "Скорость зависит от сервера Jitsi и транспорта. Попробуйте другой транспорт или другой сервер Jitsi: «Сменить комнату / транспорт» в разделе «Мои серверы».",
         .settingsPortLabel:          "Порт",
         .checkPortAction:            "Проверить порт",
         .randomPortAction:           "Случайный",
@@ -2746,10 +2746,10 @@ enum L10nTable {
         .installOptionsLead: "Добавьте протокол на этот сервер. Ключ шифрования общий с уже установленными.",
         .throughputA11y_fmt: "Загрузка %@, отдача %@",
         .throughputEstimateA11y_fmt: "Около %@ через локальный SOCKS5-порт — оценка по трафику loopback, без разделения на приём и отдачу",
-        .carrierJitsiDesc: "Публичные серверы Jitsi, аккаунт не нужен. Рекомендуется транспорт данных (DataChannel); видеотранспорты тоже работают. Название комнаты или полная ссылка.",
+        .carrierJitsiDesc: "Публичные серверы Jitsi, аккаунт не нужен. Рекомендуется VP8; DataChannel и другие видеотранспорты тоже работают. Название комнаты или полная ссылка.",
         .carrierTelemostDesc: "Нужен аккаунт Яндекса; olcOS сам обновляет комнату каждые 24 часа.",
-        .transportDatachannelDesc: "Данные идут по собственному каналу данных сервиса. Самый быстрый транспорт — там, где сервис его поддерживает.",
-        .transportVp8channelDesc: "Данные упакованы в видеопоток VP8, и сервис видит обычный видеозвонок. Медленнее DataChannel; нужен сервисам без канала данных.",
+        .transportDatachannelDesc: "Данные идут по собственному каналу данных сервиса. Единственный транспорт SaluteJazz; на Jitsi в наших тестах медленнее VP8.",
+        .transportVp8channelDesc: "Данные упакованы в видеопоток VP8, и сервис видит обычный видеозвонок. Самый быстрый в наших тестах (около 9 Мбит/с на Jitsi); кадры и пакеты настраиваются в Настройках.",
         .transportSeichannelDesc: "Данные спрятаны в служебных блоках видеопотока (H.264 SEI), с подтверждениями. Запасной вариант, медленнее.",
         .transportVideochannelDesc: "Данные рисуются кадрами-картинками (QR-коды) в видеопотоке. Самый медленный запасной вариант; в режиме VPN недоступен.",
         .settingsCarrierEndpointsEmpty: "Сначала добавьте подключение — адреса берутся из его комнаты.",

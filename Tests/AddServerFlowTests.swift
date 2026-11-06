@@ -109,7 +109,7 @@ final class AddServerFlowTests: XCTestCase {
 
     func testDefaultPlanIsJitsiDataChannel() {
         XCTAssertEqual(AddServerCarrierPlan.defaultPlan.primary, "jitsi")
-        XCTAssertEqual(AddServerCarrierPlan.defaultPlan.transport(for: "jitsi"), "datachannel")
+        XCTAssertEqual(AddServerCarrierPlan.defaultPlan.transport(for: "jitsi"), "vp8channel")
     }
 
     func testBadgesMatchUpstreamGuidance() {
@@ -120,7 +120,7 @@ final class AddServerFlowTests: XCTestCase {
     }
 
     func testRecommendedTransportPerCarrier() {
-        XCTAssertEqual(AddServerCarrierPlan.recommendedTransport(for: "jitsi"), "datachannel")
+        XCTAssertEqual(AddServerCarrierPlan.recommendedTransport(for: "jitsi"), "vp8channel")
         XCTAssertEqual(AddServerCarrierPlan.recommendedTransport(for: "salutejazz"), "datachannel")
         XCTAssertEqual(AddServerCarrierPlan.recommendedTransport(for: "telemost"), "vp8channel")
     }

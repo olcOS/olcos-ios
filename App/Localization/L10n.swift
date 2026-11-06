@@ -317,7 +317,7 @@ enum L10n: String, CaseIterable {
     case sectionSpeedProvider               // "Speed-test provider" (#285)
     case speedProviderFooter                // explanation of the provider pick-list (#285)
     case speedAllFailed                     // "All measurements failed" (#285)
-    case speedDatachannelHint               // tip: switch to datachannel for speed (#285)
+    case speedSlowJitsiHint                 // tip: a slow Jitsi tunnel can try another transport or server
     case settingsPortLabel
     case checkPortAction                    // "Check port"
     case randomPortAction                   // "Random"

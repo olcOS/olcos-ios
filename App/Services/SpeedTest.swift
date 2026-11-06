@@ -15,8 +15,7 @@ import Foundation
 // test degrades gracefully there — serial (not parallel) measurements, scaled-down
 // payloads, longer timeouts, and ping failure tolerated (reported "n/a", not an
 // error). The provider is user-selectable (Settings) since Cloudflare can be slow
-// or blocked. A datachannel hint is surfaced when a slow video-transport tunnel is
-// the bottleneck.
+// or blocked. A slow Jitsi tunnel logs a hint to try another transport or server.
 
 /// A selectable speed-test backend. Cloudflare is parametric (any byte count +
 /// upload + trace ping); fixed-file providers (e.g. OVH) serve set sizes, have no
@@ -207,13 +206,14 @@ final class SpeedTest: ObservableObject {
             "down=\(d.map { String(format: "%.2fMbps", $0) } ?? "n/a") " +
             "up=\(upStr)")
 
-        // #285: surface the lever — a slow video-transport tunnel is bandwidth-
-        // limited by design; datachannel is far faster where the network allows.
-        // Only hint on a *measured* slow download (not a total failure, which is
-        // a connectivity problem datachannel wouldn't fix).
-        let videoTransports = ["vp8channel", "seichannel", "videochannel"]
-        if mode.isTunnelled, let t = transport, videoTransports.contains(t), let d, d < 5 { // #484
-            LogStore.shared.log(.diagnostics, L10n.speedDatachannelHint.localized())
+        // #285 was: a slow video-transport tunnel hinted at datachannel as "far
+        // faster". Measured from a VPS (2026-11), vp8channel 30/64 carried about
+        // 9 Mbit/s each way on Jitsi and the data channel about 1 Mbit/s down, and
+        // Jitsi is the one service offering both, so the lever is another
+        // transport or another Jitsi server. Only on a *measured* slow download
+        // (not a total failure, which is a connectivity problem).
+        if mode.isTunnelled, carrier == "jitsi", let d, d < 5 { // #484
+            LogStore.shared.log(.diagnostics, L10n.speedSlowJitsiHint.localized())
         }
     }
 

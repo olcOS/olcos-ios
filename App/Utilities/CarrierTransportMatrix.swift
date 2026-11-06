@@ -69,8 +69,9 @@ import Foundation
 //
 // Upstream notes: Telemost dropped DataChannel (fail) and never supported sei;
 // videochannel works but is slow. WBStream runs everything except datachannel
-// (guest tokens set canPublishData=false → unstable). Jitsi's datachannel is the
-// one stable, recommended combo; every other jitsi transport now passes E2E (#434).
+// (guest tokens set canPublishData=false → unstable). Jitsi's datachannel is
+// upstream's recommended start and every jitsi transport passes E2E (#434); the
+// app pre-selects vp8channel there, ~9x faster down in its own measurements.
 
 /// Compatibility level between a carrier and a transport, based on upstream's
 /// E2E expectations at the pinned submodule — NOT a claim about today.
@@ -132,8 +133,12 @@ enum CarrierTransportMatrix {
             "videochannel": .ok,
         ],
         "jitsi": [
-            "datachannel":  .recommended,  // the one stable combo upstream recommends everywhere
-            "vp8channel":   .ok,           // #357: E2E ExpectPass since 95dc660 (jitsi RTP keepalive fix)
+            // Upstream's gate starts on jitsi + datachannel; measured from a VPS
+            // (2026-11-06, two public servers, 30 fps x 64) vp8channel carried
+            // ~9 Mbit/s each way and datachannel ~1 Mbit/s down, so vp8channel is
+            // the default and datachannel the fallback.
+            "datachannel":  .ok,           // was .recommended (upstream's recommended start)
+            "vp8channel":   .recommended,  // #357: E2E ExpectPass since 95dc660 (jitsi RTP keepalive fix)
             // #434: master's E2E `case "jitsi"` returns ExpectPass for every transport.
             "seichannel":   .ok,           // #434 was: .fail — now E2E ExpectPass (RTP keepalive fixes landed for sei)
             "videochannel": .ok,           // #434 was: .fail — now E2E ExpectPass (RTP keepalive fixes landed for video)
@@ -177,8 +182,8 @@ enum CarrierTransportMatrix {
     /// Best transport to pre-select when user picks a carrier.
     static func defaultTransport(for carrier: String) -> String {
         switch carrier {
-        case "jitsi", "salutejazz": return "datachannel"
-        default:                    return "vp8channel"
+        case "salutejazz": return "datachannel"   // the one transport a guest gets
+        default:           return "vp8channel"    // Jitsi included: the fastest measured
         }
     }
 

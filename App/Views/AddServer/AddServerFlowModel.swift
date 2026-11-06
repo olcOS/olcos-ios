@@ -213,9 +213,9 @@ enum AddServerTrustState: Equatable {
 
 // MARK: - Step 3: carriers & transports
 
-/// Upstream's guidance (docs/about.md): "Recommended start: jitsi + datachannel."
-/// Telemost needs a Yandex account and carries traffic as VP8. Nothing else is
-/// claimed.
+/// Jitsi is the recommended start (upstream docs/about.md: "jitsi + datachannel";
+/// the app starts it on vp8channel, the fastest it measured there). Telemost
+/// needs a Yandex account and carries traffic as VP8. Nothing else is claimed.
 enum AddServerCarrierBadge: Equatable, Sendable {
     case recommended, fast, none
 
@@ -247,7 +247,8 @@ struct AddServerCarrierPlan: Equatable {
     /// The Xray options, if Xray is picked, are usable as typed.
     var xrayOptionsValid: Bool { !xray || xrayOptions.isValid }
 
-    static let defaultPlan = AddServerCarrierPlan(selected: ["jitsi"], transport: ["jitsi": "datachannel"])
+    static let defaultPlan = AddServerCarrierPlan(selected: ["jitsi"],
+                                                  transport: ["jitsi": CarrierTransportMatrix.defaultTransport(for: "jitsi")])
 
     static func badge(for carrier: String) -> AddServerCarrierBadge {
         switch carrier {

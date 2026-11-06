@@ -93,13 +93,13 @@ final class FailoverTests: XCTestCase {
 
     func testFailoverRankOrdersBestFirst() {
         // Exact ranks track CarrierTransportMatrix, so assert the ORDERING, not
-        // the integers. Combos with genuinely distinct ranks: jitsi/datachannel
-        // is recommended (rank 0); jitsi/vp8channel is ok (rank 1);
+        // the integers. Combos with genuinely distinct ranks: jitsi/vp8channel
+        // is recommended (rank 0); jitsi/datachannel is ok (rank 1);
         // wbstream/datachannel is unstable (rank 2). (telemost/vp8channel is ALSO
         // recommended = rank 0 — vp8channel is telemost's only stable transport —
         // so it can't stand in for the "ok" tier here.)
-        let rec = TunnelManager.failoverRank(carrier: "jitsi", transport: "datachannel")
-        let ok  = TunnelManager.failoverRank(carrier: "jitsi", transport: "vp8channel")
+        let rec = TunnelManager.failoverRank(carrier: "jitsi", transport: "vp8channel")
+        let ok  = TunnelManager.failoverRank(carrier: "jitsi", transport: "datachannel")
         let bad = TunnelManager.failoverRank(carrier: "wbstream", transport: "datachannel")
         XCTAssertLessThan(rec, ok)
         XCTAssertLessThan(ok, bad)
@@ -119,7 +119,7 @@ final class FailoverTests: XCTestCase {
         let serverStore = ServerHostStore()
 
         let primary = record("primary", carrier: "wbstream", transport: "vp8channel")
-        let extra1  = record("extra1",  carrier: "jitsi",    transport: "datachannel")
+        let extra1  = record("extra1",  carrier: "jitsi",    transport: "vp8channel")
         let extra2  = record("extra2",  carrier: "telemost", transport: "vp8channel")
         let unrelated = record("unrelated")
         store.connections = [primary, extra1, extra2, unrelated]
@@ -130,7 +130,7 @@ final class FailoverTests: XCTestCase {
         serverStore.hosts = [host]
 
         // From `primary`: the two extras, best-first by matrix rank. Both are
-        // rank 0 here (jitsi/datachannel and telemost/vp8channel are each their
+        // rank 0 here (jitsi/vp8channel and telemost/vp8channel are each their
         // carrier's recommended combo), so the tie falls to the displayName
         // order — extra1 before extra2. `unrelated` (not on the host) and
         // `primary` itself are excluded.

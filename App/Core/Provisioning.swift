@@ -84,7 +84,7 @@ struct InstallOptions: Sendable, Equatable {
     var roomCreatedAt: Date? = nil
 
     static let `default` = InstallOptions(carrier: "jitsi",
-                                          transport: "datachannel",
+                                          transport: CarrierTransportMatrix.defaultTransport(for: "jitsi"),
                                           roomID: "")
 
     var requiresRoomID: Bool { CarrierTransportMatrix.requiresRoomID(carrier: carrier) }

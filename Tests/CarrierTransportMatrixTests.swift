@@ -49,7 +49,9 @@ final class CarrierTransportMatrixTests: XCTestCase {
                          "seichannel":  .fail,        "videochannel": .ok],
             "wbstream": ["datachannel": .question,    "vp8channel": .recommended,
                          "seichannel":  .ok,          "videochannel": .ok],
-            "jitsi":    ["datachannel": .recommended, "vp8channel": .ok,
+            // datachannel was .recommended (upstream's start); vp8channel measured
+            // ~9x faster down from a VPS (2026-11-06), so it is the default.
+            "jitsi":    ["datachannel": .ok,          "vp8channel": .recommended,
                          "seichannel":  .ok,          "videochannel": .ok],   // #434 was: sei/video .fail
             // The ghostlane fork's docs/settings.md compatibility matrix.
             "vkcalls":    ["datachannel": .fail,        "vp8channel": .recommended,
