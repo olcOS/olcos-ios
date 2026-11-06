@@ -34,9 +34,12 @@
 ## What it is
 
 olcOS sends the internet traffic of your iPhone or iPad through your own server. The traffic travels inside an
-ordinary video call on VK Calls, Yandex Telemost, SaluteJazz, MTS Link or Jitsi. When mobile internet only works
-through a whitelist, an ordinary VPN can't reach its server, while carriers usually let VK and Yandex calls through.
-Without whitelists the phone can also connect to the server directly over Xray (VLESS + REALITY).
+ordinary video call (WebRTC) on one of the calling services the app supports. The list lives in the app and grows with
+updates. When mobile internet only works through a whitelist, an ordinary VPN can't reach its server, while a call to
+a whitelisted service gets through. Without whitelists the phone can also connect to the server directly over Xray
+(VLESS + REALITY), so the speed isn't limited by the call.
+
+You need an iPhone or iPad with iOS 17 or later. The IPA is about 55 MB and is installed from a computer.
 
 How whitelists work, how to install the app and how to set up a server is explained in the
 [main repository](https://github.com/olcOS/olcos/blob/main/README.en.md).
@@ -51,12 +54,16 @@ The app is available in English, Russian and French; switch the language in Sett
   their rooms into one channel.
 - Live speed for each protocol on the home screen, and a connection check that measures every room on its own and
   all of them together.
-- Russian sites open directly, outside the tunnel: banks, government services and others. You can add your own list.
+- If you want, Russian sites such as banks and government services can go directly, outside the tunnel. You can add
+  your own list.
 - A VPN for the whole device, or a SOCKS5 proxy for apps that support one: Telegram, Potatso, Shadowrocket.
 - Widgets for the Home Screen, Lock Screen and Control Center, and a Live Activity with the speed in the Dynamic
   Island.
 - Auto-connect on mobile data and on chosen Wi-Fi networks.
 - Invites for other devices, including invites that allow server management. olcOS for Android accepts them too.
+- Settings for those who know what they change: VP8 video channel frames and packets (30 frames of 64 packets by
+  default), DNS, proxy port and login. Xray connections let you change the server, SNI, flow, TLS fingerprint and
+  short ID.
 
 ## Modes
 
