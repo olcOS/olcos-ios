@@ -73,11 +73,11 @@ def bundle(app, version="1.0", build="1", extension=True, nio_fix=True):
 
 class PublicVersionTests(unittest.TestCase):
     def test_first_public_release(self):
-        self.assertEqual(release.release_tag("1.0", "1"), "v1.0.1")
-        release.validate_tag("v1.0.1", "1.0", "1")
+        self.assertEqual(release.release_tag("1.0", "1"), "v1.0")
+        release.validate_tag("v1.0", "1.0", "1")
 
     def test_optional_patch_version(self):
-        release.validate_tag("v1.2.3.4", "1.2.3", "4")
+        release.validate_tag("v1.2.3", "1.2.3", "4")
 
     def test_reject_malformed_versions_and_builds(self):
         for version, build in [("01.0", "1"), ("1", "1"), ("1.0-beta", "1"),
@@ -87,8 +87,8 @@ class PublicVersionTests(unittest.TestCase):
                 release.release_tag(version, build)
 
     def test_reject_mismatched_and_injected_tags(self):
-        for tag in ("v1.0.282", "v1.0.2", "refs/heads/main", "--help",
-                    "v1.0.1\n", "v1.0.1;exit 0", "v01.0.1"):
+        for tag in ("v1.0.1", "v1.0.282", "v1.1", "refs/heads/main", "--help",
+                    "v1.0\n", "v1.0;exit 0", "v01.0"):
             with self.subTest(tag=tag), self.assertRaises(ValueError):
                 release.validate_tag(tag, "1.0", "1")
 
@@ -253,24 +253,24 @@ for path in pathlib.Path(os.environ["MOCK_DOWNLOADS"]).iterdir():
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue((self.root / "App/Mobile.xcframework/test-binary").is_file())
         args = json.loads((self.root / "gh.json").read_text())
-        self.assertIn("v1.0.1", args)
+        self.assertIn("v1.0", args)
         self.assertIn("Hotelk52339/olcos-ios", args)
 
     def test_checksum_failure_keeps_existing_framework(self):
         self.assets(corrupt=True)
-        result = self.run_script("fetch-framework.sh", "v1.0.1")
+        result = self.run_script("fetch-framework.sh", "v1.0")
         self.assertNotEqual(result.returncode, 0)
         self.assertTrue((self.root / "App/Mobile.xcframework/keep").is_file())
 
     def test_input_mismatch_keeps_existing_framework(self):
         self.assets(key="0" * 64)
-        result = self.run_script("fetch-framework.sh", "v1.0.1")
+        result = self.run_script("fetch-framework.sh", "v1.0")
         self.assertNotEqual(result.returncode, 0)
         self.assertTrue((self.root / "App/Mobile.xcframework/keep").is_file())
 
     def test_unsafe_archive_keeps_existing_framework(self):
         self.assets(unsafe=True)
-        result = self.run_script("fetch-framework.sh", "v1.0.1")
+        result = self.run_script("fetch-framework.sh", "v1.0")
         self.assertNotEqual(result.returncode, 0)
         self.assertTrue((self.root / "App/Mobile.xcframework/keep").is_file())
 

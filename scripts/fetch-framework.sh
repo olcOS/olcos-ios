@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Download a matching, checksummed olcOS framework without rebuilding it.
-# Usage: ./scripts/fetch-framework.sh [v2.0.2]
+# Usage: ./scripts/fetch-framework.sh [v3.5]
 # GH_REPO=owner/repo overrides the public olcOS release repository.
 # --cache-key prints the source fingerprint used by BOTH CI and release.
 set -euo pipefail
@@ -37,7 +37,7 @@ PY
 fi
 
 if [ "$#" -gt 1 ] || [[ "${1:-}" == -* ]]; then
-  echo "usage: $0 [v<version>.<build>] | --cache-key" >&2
+  echo "usage: $0 [v<version>] | --cache-key" >&2
   exit 1
 fi
 REPOSITORY="${GH_REPO:-Hotelk52339/olcos-ios}"
@@ -49,7 +49,7 @@ done
 if [ -z "$TAG" ]; then
   TAG="$(python3 scripts/cut-release.py --dry-run | sed -n 's/^tag: //p')"
 fi
-[[ "$TAG" =~ ^v[0-9]+\.[0-9]+(\.[0-9]+)?\.[1-9][0-9]*$ ]] || {
+[[ "$TAG" =~ ^v[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] || {
   echo "error: invalid release tag" >&2; exit 1;
 }
 EXPECTED_KEY="$(bash scripts/fetch-framework.sh --cache-key)"

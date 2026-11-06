@@ -15,8 +15,8 @@ settings:
     # appex ship in lockstep (CFBundleVersion drift breaks App Store
     # validation and confuses sideloads); scripts/cut-release.py reads
     # CURRENT_PROJECT_VERSION from here.
-    MARKETING_VERSION: "3.0"
-    CURRENT_PROJECT_VERSION: "3"
+    MARKETING_VERSION: "3.5"
+    CURRENT_PROJECT_VERSION: "4"
 
 packages:
   Citadel:

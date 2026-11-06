@@ -10,7 +10,8 @@ Code and executable tests take precedence over historical comments.
   iOS source snapshots and CI: `olcOS/olcos-ios`; releases, issues and private
   security reports: `olcOS/olcos`. Private siblings: `olcOS/olcos-android-dev`,
   `olcOS/olcos-core`.
-- Release identity: marketing version `3.0`, build `3`, tag `v3.0.3-beta`.
+- Release identity: marketing version `3.5`, build `4`, tag `v3.5` (before it:
+  `3.0`, build `3`, tag `v3.0.3-beta`). Tags carry the version only.
   Version changes belong to the release owner; do not bump per contribution.
 - Preserve bundle IDs and storage keys as well as URI compatibility.
 - Preserve technical targets/schemes/modules `olcrtc-ios`, `olcrtc-ios-tests`

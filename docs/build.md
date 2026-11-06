@@ -88,7 +88,7 @@ Only if the selected release actually contains `Mobile.xcframework.zip`,
 `framework-provenance.json` and `SHA256SUMS`:
 
 ```bash
-GH_REPO=olcOS/olcos ./scripts/fetch-framework.sh v2.0.2
+GH_REPO=olcOS/olcos ./scripts/fetch-framework.sh v3.5
 ```
 
 The script needs `gh`, `unzip` and `python3`. It downloads the three assets
@@ -274,7 +274,8 @@ The output is `olcos-ios-unsigned.ipa`; the script checks that
 requires appropriate signing and is not equivalent to App Store distribution
 or verified VPN support. [Packaging script](../scripts/package-ipa.sh).
 
-The olcOS 2.0 release identity is version **2.0**, build **2**, tag **v2.0.2**.
+The current release identity is version **3.5**, build **4**, tag **v3.5**. The tag
+names the version only; the build number goes up with every release.
 The release owner coordinates versions and publication; do not tag, publish
 or change version counters as an incidental build step.
 

@@ -5,8 +5,8 @@ This helper never edits files, creates tags, pushes, or reads a private ledger.
 Version/build are authoritative in project.yml; optional explicit values must
 match. The maintainer owns tagging/publishing after reviewing macOS CI.
 
-  python3 scripts/cut-release.py --version 2.0 --build 2 --dry-run
-  python3 scripts/cut-release.py --check-tag v2.0.2
+  python3 scripts/cut-release.py --version 3.5 --build 4 --dry-run
+  python3 scripts/cut-release.py --check-tag v3.5
   python3 scripts/cut-release.py --check-bundle build/device/Build/Products/Release-iphoneos/olcrtc-ios.app
 """
 
@@ -19,7 +19,9 @@ REPO = Path(__file__).resolve().parent.parent
 PROJECT = REPO / "project.yml"
 VERSION_RE = r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:\.(?:0|[1-9][0-9]*))?"
 BUILD_RE = r"[1-9][0-9]*"
-TAG_RE = rf"v{VERSION_RE}\.{BUILD_RE}"
+# A public tag names the version only (v3.5); the build number stays inside the
+# bundle and goes up with every release.
+TAG_RE = rf"v{VERSION_RE}"
 
 
 def project_version(project: Path = PROJECT) -> tuple[str, str]:
@@ -43,7 +45,7 @@ def project_version(project: Path = PROJECT) -> tuple[str, str]:
 def release_tag(version: str, build: str) -> str:
     if not re.fullmatch(VERSION_RE, version) or not re.fullmatch(BUILD_RE, build):
         raise ValueError("version must be numeric X.Y[.Z] and build a positive integer")
-    return f"v{version}.{build}"
+    return f"v{version}"
 
 
 def validate_tag(tag: str, version: str, build: str) -> None:

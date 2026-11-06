@@ -64,10 +64,10 @@ def source(relative):
 
 
 class OlcosBrandingContracts(unittest.TestCase):
-    def test_release_identity_is_three_point_zero_build_three_without_identity_changes(self):
+    def test_release_identity_is_three_point_five_build_four_without_identity_changes(self):
         project = source('project.yml')
-        self.assertEqual(re.findall(r'^\s*MARKETING_VERSION: "([^"]+)"', project, re.M), ['3.0'])
-        self.assertEqual(re.findall(r'^\s*CURRENT_PROJECT_VERSION: "([^"]+)"', project, re.M), ['3'])
+        self.assertEqual(re.findall(r'^\s*MARKETING_VERSION: "([^"]+)"', project, re.M), ['3.5'])
+        self.assertEqual(re.findall(r'^\s*CURRENT_PROJECT_VERSION: "([^"]+)"', project, re.M), ['4'])
         self.assertEqual(re.findall(r'^\s*CFBundleDisplayName: (.+)', project, re.M),
                          ['olcOS', 'olcOS Tunnel', 'olcOS'])
         self.assertEqual(re.findall(r'^\s*PRODUCT_BUNDLE_IDENTIFIER: (.+)', project, re.M), [
