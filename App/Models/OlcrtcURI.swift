@@ -275,8 +275,10 @@ struct OlcrtcURI {
             let k = kv[0].trimmingCharacters(in: .whitespaces)
             let v = kv[1].trimmingCharacters(in: .whitespaces)
             switch (isSEI, k) {
-            case (false, "vp8-fps"), (false, "fps"):     p.vp8FPS   = intOrLog(k, v)
-            case (false, "vp8-batch"), (false, "batch"): p.vp8Batch = intOrLog(k, v)
+            // A link is untrusted input: VP8 numbers outside what the core runs on
+            // (1…120 frames/s) and what the settings allow (1…256 packets) are clamped.
+            case (false, "vp8-fps"), (false, "fps"):     p.vp8FPS   = intOrLog(k, v).map { min(max($0, 1), 120) }
+            case (false, "vp8-batch"), (false, "batch"): p.vp8Batch = intOrLog(k, v).map { min(max($0, 1), 256) }
             case (true,  "fps"):                         p.seiFPS   = intOrLog(k, v)
             case (true,  "batch"):                       p.seiBatch = intOrLog(k, v)
             case (true,  "frag"):                        p.seiFrag  = intOrLog(k, v)

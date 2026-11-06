@@ -42,6 +42,19 @@ final class OlcrtcURIPayloadTests: XCTestCase {
         XCTAssertEqual(p.vp8BatchSize, 4)
     }
 
+    /// A link is untrusted: VP8 numbers outside 1…120 frames and 1…256 packets
+    /// are clamped, as the core's own link parser and the Android app do.
+    func testParseVP8ClampsNumbersFromALink() throws {
+        let high = try OlcrtcURI.parse(
+            "olcrtc://jitsi?vp8channel<vp8-fps=100000&vp8-batch=999999>@room#aa")
+        XCTAssertEqual(high.vp8FPS, 120)
+        XCTAssertEqual(high.vp8BatchSize, 256)
+        let low = try OlcrtcURI.parse(
+            "olcrtc://jitsi?vp8channel<vp8-fps=0&vp8-batch=0>@room#aa")
+        XCTAssertEqual(low.vp8FPS, 1)
+        XCTAssertEqual(low.vp8BatchSize, 1)
+    }
+
     // MARK: seichannel payload (#355)
 
     func testParseSEIServerScriptFormat() throws {
