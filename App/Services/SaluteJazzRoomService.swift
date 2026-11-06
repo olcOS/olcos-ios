@@ -4,7 +4,7 @@ import Foundation
 //
 // Creates a SaluteJazz (Sber) meeting from the phone: one anonymous POST, no
 // account, no cookie. The answer is the room reference the core joins with,
-// `<code>:<password>` (olcrtc-upstream internal/auth/salutejazz/api.go,
+// `<code>:<password>` (olcos-core/olcrtc internal/auth/salutejazz/api.go,
 // `createMeeting`, whose body and headers this mirrors so the app and the core
 // present the same client to Sber).
 //

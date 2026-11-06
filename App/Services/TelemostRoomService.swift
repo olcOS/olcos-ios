@@ -76,7 +76,7 @@ enum TelemostRoomError: LocalizedError, Equatable {
 // Business subscription. The whole credential is the `Session_id` cookie of an
 // ordinary personal account; there is no CSRF token and nothing is signed.
 // Joining stays anonymous (our own core joins with no cookie —
-// `olcrtc-upstream/internal/auth/telemost/api.go`), so nothing about the tunnel
+// `olcos-core/olcrtc/internal/auth/telemost/api.go`), so nothing about the tunnel
 // changes.
 //
 // The header set below is NOT invented: it is the one our own Go core already

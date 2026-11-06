@@ -7,7 +7,7 @@ final class SSHScriptAudit481Tests: XCTestCase {
     private func loadScript(_ name: String) throws -> String {
         let url = Bundle.main.url(forResource: name, withExtension: "sh")
             ?? URL(fileURLWithPath: #filePath).deletingLastPathComponent()
-                .deletingLastPathComponent().appendingPathComponent("scripts/\(name).sh")
+                .deletingLastPathComponent().appendingPathComponent("olcos-core/server/\(name).sh")
         return try String(contentsOf: url, encoding: .utf8)
     }
 

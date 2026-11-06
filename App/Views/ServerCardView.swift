@@ -19,7 +19,7 @@ import SwiftUI
 
 /// The primary action a card is allowed to offer: never one no evidence
 /// justifies. A server nothing has ever read (`HostBase.unknown`) gets
-/// **Check server**, never Install — `scripts/srv.sh` force-removes every
+/// **Check server**, never Install — `olcos-core/server/srv.sh` force-removes every
 /// `olcrtc-server-*` container, so Install on a re-added VPS would destroy a
 /// working deployment.
 enum ServerPrimaryAction: Equatable {

@@ -22,12 +22,12 @@ import Foundation
 // "what works" that nothing had measured.
 //
 // #284: re-derived from the upstream authoritative matrix in
-// `olcrtc-upstream/docs/settings.md` (the "compatibility matrix", from the E2E
+// `olcos-core/olcrtc/docs/settings.md` (the "compatibility matrix", from the E2E
 // suite). Legend mapping: `+` (pass) → .ok, the per-carrier best/default → .recommended,
 // `~` (unstable, may work) → .question, `-` (fail / unsupported) → .fail.
 //
 // #357: re-synced to the upstream E2E ground truth (the realE2ECaseExpectation
-// table in `olcrtc-upstream/internal/e2e/tunnel_test.go`), which is now more current
+// table in `olcos-core/olcrtc/internal/e2e/tunnel_test.go`), which is now more current
 // than docs/settings.md for jitsi. E2E mapping: ExpectPass → .ok, ExpectUnstable →
 // .question, ExpectFail → .fail.
 //
@@ -43,7 +43,7 @@ import Foundation
 //   | seichannel   |    -     |    +     |   +   |
 //   | videochannel |    +     |    +     |   +   |
 //
-// The ghostlane fork adds two carriers (olcrtc-upstream docs/settings.md):
+// The ghostlane fork adds two carriers (olcos-core/olcrtc docs/settings.md):
 //
 //   | transport    | salutejazz | vkcalls |
 //   | datachannel  |     +      |    -    |
@@ -55,7 +55,7 @@ import Foundation
 // no arbitrary data channel, so bytes ride its single video layer (13-19 Mbit/s
 // at the fork's release gate).
 //
-// And one more (olcrtc-upstream docs/providers.md, engine `mtslink`):
+// And one more (olcos-core/olcrtc docs/providers.md, engine `mtslink`):
 //
 //   | transport    | mtslink |
 //   | datachannel  |    -    |
@@ -187,7 +187,7 @@ enum CarrierTransportMatrix {
     /// install will fail server-side with "OLCRTC_ROOM_ID is required".
     ///
     /// Currently empty: every carrier requires an explicit room ID in the iOS UI.
-    /// `scripts/srv.sh` *can* auto-generate a Jitsi room URL when OLCRTC_ROOM_ID
+    /// `olcos-core/server/srv.sh` *can* auto-generate a Jitsi room URL when OLCRTC_ROOM_ID
     /// is empty (#226), but the app keeps the field required for jitsi too,
     /// because the lightweight reconfigure path (`SSHRunner.reconfigureScript`)
     /// writes `room.id` verbatim and has no auto-gen — an empty room there would

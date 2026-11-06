@@ -98,7 +98,7 @@ enum SSHTransportError: LocalizedError, CustomStringConvertible, Equatable {
 /// `SSHRunner.parse*` and `HostDisplay`. `Socks5ConnectHandler` below is the
 /// only thing here that owns I/O.
 ///
-/// The peculiarity of OUR server that shaped this (olcrtc-upstream
+/// The peculiarity of OUR server that shaped this (olcos-core/olcrtc
 /// `internal/client/socks.go`, `socks5Handshake`): the Go listener DISCARDS the
 /// client's offered method list and unconditionally answers `05 02` whenever a
 /// username is configured, `05 00` otherwise. So we always offer BOTH methods

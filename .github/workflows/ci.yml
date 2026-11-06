@@ -19,9 +19,6 @@ jobs:
   build-test:
     name: Test and unsigned device build
     uses: ./.github/workflows/build.yml
-    # Pass CORE_PATCH_B64 (the closed core patch series) to the reusable
-    # workflow; a fork pull request inherits no secret and builds the bare core.
-    secrets: inherit
 
   lint:
     name: SwiftLint

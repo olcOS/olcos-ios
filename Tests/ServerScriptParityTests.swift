@@ -4,11 +4,12 @@ import XCTest
 // MARK: - ServerScriptParityTests
 //
 // Verifies that SSHRunner.installEnv() sets exactly the env var names that
-// scripts/srv.sh expects in its # boc olcrtc-ios patches.
+// olcos-core/server/srv.sh expects in its # boc olcrtc-ios patches.
 //
-// Relationship to parity_check.py (the build-phase script):
-//   - parity_check.py: every non-boc line in scripts/srv.sh must appear
-//     verbatim in upstream olcrtc-upstream/script/srv.sh. Catches upstream changes.
+// Relationship to olcos-core's parity check (scripts/parity_check.py, run by
+// olcos-core's CI):
+//   - parity_check.py: every non-boc line in olcos-core/server/srv.sh must
+//     appear verbatim in upstream's install.sh. Catches upstream changes.
 //   - These tests: every OLCRTC_* var read inside boc patches must be set
 //     by installEnv(). Catches our own drift between Swift and srv.sh.
 //
@@ -88,12 +89,12 @@ final class ServerScriptParityTests: XCTestCase {
     // MARK: Alignment between installEnv() and srv.sh boc patches
 
     func testEnvVarNamesMatchSrvShBocPatches() throws {
-        // Load scripts/srv.sh — try bundle first, fall back to source tree
+        // Load olcos-core/server/srv.sh — try bundle first, fall back to source tree
         let scriptURL: URL = Bundle.main.url(forResource: "srv", withExtension: "sh")
             ?? URL(fileURLWithPath: #filePath)
                 .deletingLastPathComponent()          // Tests/
                 .deletingLastPathComponent()          // olcrtc-ios/
-                .appendingPathComponent("scripts/srv.sh")
+                .appendingPathComponent("olcos-core/server/srv.sh")
 
         let script = try String(contentsOf: scriptURL, encoding: .utf8)
 
@@ -166,10 +167,10 @@ final class ServerScriptParityTests: XCTestCase {
         })
     }
 
-    // MARK: #452 — Alignment between addCarrierEnv() and scripts/add-carrier.sh
+    // MARK: #452 — Alignment between addCarrierEnv() and olcos-core/server/add-carrier.sh
 
     /// Mirror of testEnvVarNamesMatchSrvShBocPatches for the sibling-carrier
-    /// script: every $OLCRTC_* var scripts/add-carrier.sh reads must be
+    /// script: every $OLCRTC_* var olcos-core/server/add-carrier.sh reads must be
     /// emitted by SSHRunner.addCarrierEnv() or listed as a script-default
     /// below. The whole file is scanned — it is fully ours, so no boc
     /// filtering applies.
@@ -178,7 +179,7 @@ final class ServerScriptParityTests: XCTestCase {
             ?? URL(fileURLWithPath: #filePath)
                 .deletingLastPathComponent()          // Tests/
                 .deletingLastPathComponent()          // olcrtc-ios/
-                .appendingPathComponent("scripts/add-carrier.sh")
+                .appendingPathComponent("olcos-core/server/add-carrier.sh")
         // #470 was: `try?` + XCTSkip — a script dropped from the bundle made the
         // whole contract silently "skipped" on device; the sibling loaders throw.
         let script = try String(contentsOf: url, encoding: .utf8)
@@ -222,7 +223,7 @@ final class ServerScriptParityTests: XCTestCase {
         for varName in reads where !scriptDefaults.contains(varName) {
             // #470 was: `allEnvs.contains(varName)` — a substring check.
             XCTAssertTrue(emitted.contains(varName),
-                "\(varName) is read by scripts/add-carrier.sh but never set by SSHRunner.addCarrierEnv()")
+                "\(varName) is read by olcos-core/server/add-carrier.sh but never set by SSHRunner.addCarrierEnv()")
         }
     }
 
@@ -231,16 +232,16 @@ final class ServerScriptParityTests: XCTestCase {
     /// The Swift side references the Go builder image in three places (the
     /// readiness probe, the Update Binary rebuild, deep uninstall's rmi), all
     /// via AppConstants.serverGoImage. If a future upstream rebase bumps the
-    /// tag in scripts/srv.sh without the constant, readiness would report
+    /// tag in olcos-core/server/srv.sh without the constant, readiness would report
     /// `.noImage` forever and deep uninstall would strand the old image —
     /// this pins the two together.
     func testGoImageMatchesSrvShImageName() throws {
         let script = try Self.loadSrvSh()
         let imageLine = script.components(separatedBy: "\n")
             .first { $0.hasPrefix("IMAGE_NAME=") }
-        let line = try XCTUnwrap(imageLine, "scripts/srv.sh has no IMAGE_NAME= line")
+        let line = try XCTUnwrap(imageLine, "olcos-core/server/srv.sh has no IMAGE_NAME= line")
         XCTAssertTrue(line.contains(AppConstants.serverGoImage),
-            "scripts/srv.sh IMAGE_NAME (\(line)) != AppConstants.serverGoImage (\(AppConstants.serverGoImage)) — bump both together")
+            "olcos-core/server/srv.sh IMAGE_NAME (\(line)) != AppConstants.serverGoImage (\(AppConstants.serverGoImage)) — bump both together")
     }
 
     /// #451: the scripts SSHRunner composes must themselves use the constant —
@@ -422,7 +423,7 @@ final class ServerScriptParityTests: XCTestCase {
             ?? URL(fileURLWithPath: #filePath)
                 .deletingLastPathComponent()          // Tests/
                 .deletingLastPathComponent()          // olcrtc-ios/
-                .appendingPathComponent("scripts/srv.sh")
+                .appendingPathComponent("olcos-core/server/srv.sh")
         return try String(contentsOf: scriptURL, encoding: .utf8)
     }
 }

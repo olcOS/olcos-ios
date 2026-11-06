@@ -76,7 +76,7 @@ extension ConnectionDetails {
 // Bridges the Go log-writer protocol into a Swift closure. The core's own
 // `mobile` package provides SetLogWriter / LogWriter (mobile/log.go, routing
 // the stdlib `log` it writes through); the logflags build shim pins those
-// lines to the time-only prefix this app parses (scripts/mobile-shim/).
+// lines to the time-only prefix this app parses (olcos-core/olcrtc/mobile/zz_olcos_logflags.go).
 private final class LogCapture: NSObject, MobileLogWriterProtocol {
     var onLog: ((String) -> Void)?
     func writeLog(_ msg: String?) {
@@ -128,7 +128,7 @@ final class OlcrtcEngine: TunnelEngine, @unchecked Sendable {
     /// Each lane's own loopback SOCKS port, in lane order; empty for one room.
     private var lanePortList: [Int] = []
     /// The watch that joins a lane again once its runtime has ended. The core
-    /// walks its room once and leaves retrying to the host (olcrtc-upstream
+    /// walks its room once and leaves retrying to the host (olcos-core/olcrtc
     /// mobile/runtime.go, `failoverMaxCycles`): a one-room session has
     /// TunnelManager's reconnect loop for that, a lane of a several-lane
     /// session has only this watch — without it, every room that dropped out
@@ -243,7 +243,7 @@ final class OlcrtcEngine: TunnelEngine, @unchecked Sendable {
 
     /// Carrier-aware room-settle (#271) — unchanged.
     /// The account token the carrier joins with. Only WB Stream takes one;
-    /// VK Calls refuses ANY non-empty token (olcrtc-upstream
+    /// VK Calls refuses ANY non-empty token (olcos-core/olcrtc
     /// internal/auth/vkcalls), so a stray value must never reach another carrier.
     static func providerToken(_ params: OlcrtcConnection) -> String {
         providerToken(params, carrier: params.carrier)

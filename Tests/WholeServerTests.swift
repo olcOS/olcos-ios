@@ -4,7 +4,7 @@ import XCTest
 // The whole-server connection (ServerBundle): how a server's protocols and
 // rooms become one connection, how it travels in a list or an invite, what the
 // main screen folds under it, and the bond endpoint's server script. The
-// engine's runtimes, the bonding itself (gomobile/bond, Go-tested) and the SSH
+// engine's runtimes, the bonding itself (olcos-core/mobile/bond, Go-tested) and the SSH
 // deployment are integration-only: on a VPS two SaluteJazz rooms carried one
 // download at about twice the speed of one, and it finished when a room died.
 

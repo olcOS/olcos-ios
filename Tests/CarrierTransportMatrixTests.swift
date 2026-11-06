@@ -29,12 +29,12 @@ final class CarrierTransportMatrixTests: XCTestCase {
     func testAutoGenSetIsEmpty() {
         // The YAML binary requires an explicit room ID for every carrier, so
         // no carrier auto-generates one. When #226 wires Jitsi room-URL
-        // auto-generation, add "jitsi" here and match it in scripts/srv.sh.
+        // auto-generation, add "jitsi" here and match it in olcos-core/server/srv.sh.
         XCTAssertTrue(CarrierTransportMatrix.autoGeneratesRoomID.isEmpty)
     }
 
     // #284: cells re-derived from upstream docs/settings.md; #434: re-synced to
-    // the E2E table in `olcrtc-upstream/internal/e2e/tunnel_test.go` at master
+    // the E2E table in `olcos-core/olcrtc/internal/e2e/tunnel_test.go` at master
     // (submodule pin f616f57 — jitsi returns ExpectPass for every transport).
     // #470: the FULL 12-cell snapshot. Nine cells were pinned and three
     // (telemost/videochannel, wbstream/seichannel, wbstream/videochannel) were
@@ -56,7 +56,7 @@ final class CarrierTransportMatrixTests: XCTestCase {
                            "seichannel":  .fail,        "videochannel": .fail],
             "salutejazz": ["datachannel": .recommended, "vp8channel": .fail,
                            "seichannel":  .fail,        "videochannel": .fail],
-            // MTS Link: the SFU forwards VP9/H264 only (olcrtc-upstream
+            // MTS Link: the SFU forwards VP9/H264 only (olcos-core/olcrtc
             // docs/providers.md), so vp8channel rides it dressed as VP9 and
             // nothing else is offered.
             "mtslink":    ["datachannel": .fail,        "vp8channel": .recommended,

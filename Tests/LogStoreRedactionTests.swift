@@ -3,7 +3,7 @@ import XCTest
 
 // Verifies LogStore.redactSecrets scrubs encryption credentials before they
 // land in the in-memory buffer or on-disk log file. The provisioning install
-// script (`scripts/srv.sh`) prints the 64-hex key + the full olcrtc:// URI
+// script (`olcos-core/server/srv.sh`) prints the 64-hex key + the full olcrtc:// URI
 // to its install log; the client tails that log and forwards every line
 // into LogStore. Without redaction, the user's Logs tab + any log export
 // would contain the encryption credential in plaintext.
@@ -88,7 +88,7 @@ final class LogStoreRedactionTests: XCTestCase {
     // MARK: integration — actual srv.sh-style banner lines
 
     func testSrvShBannerLineIsRedacted() {
-        // Modelled after scripts/srv.sh lines 237-241 / 268 / 287.
+        // Modelled after olcos-core/server/srv.sh lines 237-241 / 268 / 287.
         let key = String(repeating: "9", count: 64)
         let banner = """
         =================== INSTALL DONE ===================

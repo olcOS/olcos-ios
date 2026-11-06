@@ -45,7 +45,7 @@ final class OlcrtcURIPayloadTests: XCTestCase {
     // MARK: seichannel payload (#355)
 
     func testParseSEIServerScriptFormat() throws {
-        // The exact form from olcrtc-upstream/docs/sub.md.
+        // The exact form from olcos-core/olcrtc/docs/sub.md.
         let p = try OlcrtcURI.parse(
             "olcrtc://wbstream?seichannel<fps=60&batch=64&frag=900&ack-ms=2000>@room-01#aa$RU")
         XCTAssertEqual(p.transport, "seichannel")

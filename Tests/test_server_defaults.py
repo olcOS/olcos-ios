@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Defaults the app and scripts/srv.sh must agree on.
+"""Defaults the app and olcos-core/server/srv.sh must agree on.
 
 The app always passes OLCRTC_JITSI_URL, but srv.sh keeps its own default for
 a standalone run, and the two must name the same Jitsi instance.
@@ -19,7 +19,7 @@ class ServerDefaults(unittest.TestCase):
     def test_jitsi_default_matches_the_app(self):
         app = re.search(r'static let defaultJitsiBaseURL = "([^"]+)"',
                         read("App/Utilities/AppConstants.swift")).group(1)
-        srv = re.search(r'JITSI_BASE="\$\{OLCRTC_JITSI_URL:-([^}]+)\}"', read("scripts/srv.sh")).group(1)
+        srv = re.search(r'JITSI_BASE="\$\{OLCRTC_JITSI_URL:-([^}]+)\}"', read("olcos-core/server/srv.sh")).group(1)
         self.assertEqual(app, srv)
 
 

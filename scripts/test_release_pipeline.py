@@ -144,29 +144,22 @@ class BundleValidationTests(unittest.TestCase):
 class ShellFixture(unittest.TestCase):
     def setUp(self):
         self.root = fixture()
-        (self.root / "scripts/mobile-shim").mkdir(parents=True)
-        (self.root / "gomobile").mkdir()
-        (self.root / "olcrtc-upstream").mkdir()
+        (self.root / "scripts").mkdir()
+        (self.root / "olcos-core").mkdir()
         (self.root / "App/Mobile.xcframework").mkdir(parents=True)
         (self.root / "App/Mobile.xcframework/keep").write_text("existing framework")
         for name in ("fetch-framework.sh", "build-framework.sh", "package-ipa.sh", "cut-release.py"):
             shutil.copy2(ROOT / "scripts" / name, self.root / "scripts" / name)
-        # A patch series for the core is optional; the fixture carries one so
-        # the tests below can check that a present series keys the cache.
-        (self.root / "scripts/olcrtc-core.patch").write_text("diff --git a/x b/x\n")
         (self.root / "project.yml").write_text('MARKETING_VERSION: "1.0"\nCURRENT_PROJECT_VERSION: "1"\n')
-        (self.root / "gomobile/go.mod").write_text("module test\ngo 1.26.3\n")
-        (self.root / "gomobile/local.go").write_text("package test\n")
-        (self.root / "scripts/mobile-shim/shim.go").write_text("package shim\n")
         self.bin = self.root / "bin"
         self.bin.mkdir()
-        self.env = dict(os.environ, PATH=f"{self.bin}:{os.environ['PATH']}", MOCK_UPSTREAM="a" * 40)
+        self.env = dict(os.environ, PATH=f"{self.bin}:{os.environ['PATH']}", MOCK_CORE="a" * 40)
         executable(self.bin / "git", """#!/usr/bin/env python3
 import os, sys
 if "rev-parse" in sys.argv:
-    print(os.environ["MOCK_UPSTREAM"])
-elif "ls-files" in sys.argv:
-    print(os.environ.get("MOCK_TRACKED_SUM", ""), end="")
+    print(os.environ["MOCK_CORE"])
+elif "status" in sys.argv:
+    print(os.environ.get("MOCK_CORE_STATUS", ""), end="")
 else:
     raise SystemExit("unexpected git invocation")
 """)
@@ -186,35 +179,23 @@ class FrameworkFingerprintTests(ShellFixture):
     def test_key_is_stable(self):
         self.assertEqual(self.key(), self.key())
 
-    def test_upstream_pin_invalidates(self):
+    def test_core_commit_invalidates(self):
         before = self.key()
-        self.env["MOCK_UPSTREAM"] = "b" * 40
+        self.env["MOCK_CORE"] = "b" * 40
         self.assertNotEqual(before, self.key())
 
-    def test_local_inputs_invalidate(self):
-        for relative in ("gomobile/go.mod", "gomobile/local.go",
-                         "scripts/mobile-shim/shim.go", "scripts/build-framework.sh",
-                         "scripts/olcrtc-core.patch"):
+    def test_local_core_edits_invalidate(self):
+        before = self.key()
+        self.env["MOCK_CORE_STATUS"] = " M mobile/go.mod\n"
+        self.assertNotEqual(before, self.key())
+
+    def test_build_scripts_invalidate(self):
+        for relative in ("scripts/build-framework.sh", "scripts/fetch-framework.sh"):
             with self.subTest(relative=relative):
                 before = self.key()
                 with (self.root / relative).open("a") as stream:
-                    stream.write("\n// changed\n")
+                    stream.write("\n# changed\n")
                 self.assertNotEqual(before, self.key())
-
-    def test_a_missing_patch_series_is_not_an_error(self):
-        (self.root / "scripts/olcrtc-core.patch").unlink()
-        self.key()
-
-    def test_generated_sum_does_not_thrash_cache(self):
-        before = self.key()
-        (self.root / "gomobile/go.sum").write_text("generated\n")
-        self.assertEqual(before, self.key())
-
-    def test_committed_sum_is_counted(self):
-        before = self.key()
-        (self.root / "gomobile/go.sum").write_text("locked\n")
-        self.env["MOCK_TRACKED_SUM"] = "gomobile/go.sum\n"
-        self.assertNotEqual(before, self.key())
 
 
 class FrameworkFetchTests(ShellFixture):
@@ -394,7 +375,7 @@ class WorkflowSafetyTests(unittest.TestCase):
         self.assertIn("source-tests:", source)
         self.assertIn("runs-on: ubuntu-latest", source)
         self.assertIn("submodules: recursive", source)
-        self.assertIn("scripts/parity_check.py", source)
+        self.assertIn("olcos-core/scripts/parity_check.py", source)
         self.assertIn('scripts/cut-release.py --check-tag "$RELEASE_TAG"', source)
         self.assertIn("needs: source-tests", native)
         self.assertIn("runs-on: macos-15", native)
@@ -412,10 +393,10 @@ class WorkflowSafetyTests(unittest.TestCase):
 
     def test_no_signing_secrets_or_long_lived_checkout_credentials(self):
         for text in (self.ci, self.build, self.publish):
-            # The closed core patch series rides in one non-signing build input
-            # (CORE_PATCH_B64); no signing secret or long-lived checkout
-            # credential is referenced.
-            self.assertNotIn("secrets.", text.replace("secrets.CORE_PATCH_B64", ""))
+            # The build needs no secret at all: the core, its patch series
+            # included, is public in the olcos-core submodule.
+            self.assertNotIn("secrets.", text)
+            self.assertNotIn("secrets: inherit", text)
             self.assertIn("persist-credentials: false", text)
             self.assertIn("timeout-minutes:", text)
         # Simulator tests retain Xcode's normal ad-hoc signing for Keychain

@@ -4,7 +4,7 @@ import Foundation
 //
 // Pure olcrtc parameters — no name, no group, no id. Those live on
 // the wrapping ConnectionRecord. This struct mirrors the fields used by
-// MobileStart in olcrtc-upstream/mobile/mobile.go.
+// MobileStart in olcos-core/olcrtc/mobile/mobile.go.
 //
 // Mapping to the URI format from docs/uri.md:
 //   olcrtc://<carrier>?<transport>[vp8-fps=X,vp8-batch=Y]@<roomID>#<key>%<clientID>$<mimo>
@@ -58,7 +58,7 @@ struct OlcrtcConnection: Codable, Equatable {
     /// credentials. nil = this protocol only.
     var bundleLanes: [OlcrtcLane]? = nil
 
-    /// The server's bond endpoint, "host:port" (gomobile/bond). With it every
+    /// The server's bond endpoint, "host:port" (olcos-core/mobile/bond). With it every
     /// connection an app opens rides all lanes at once; without it the lanes
     /// take turns per connection (LaneBalancer).
     var bond: String? = nil

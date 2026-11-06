@@ -28,35 +28,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout pinned source and upstream
+      - name: Checkout source and the olcos-core submodule
         uses: actions/checkout@v5
         with:
           ref: ${{ inputs.ref }}
           submodules: recursive
           persist-credentials: false
 
-      # The olcOS core patch series (scripts/olcrtc-core.patch) is olcOS's own
-      # work and is not committed to this repository; CI materializes it from a
-      # repository secret (gzip + base64). An empty secret — a fork pull request
-      # gets none — leaves the file absent, and every step then builds the bare
-      # pinned core. The value is masked in logs and never printed here.
-      - name: Materialize the closed core patch series
-        env:
-          CORE_PATCH_B64: ${{ secrets.CORE_PATCH_B64 }}
-        run: |
-          if [ -n "$CORE_PATCH_B64" ]; then
-            printf '%s' "$CORE_PATCH_B64" | base64 -d | gunzip > scripts/olcrtc-core.patch
-            echo "core patch materialized: $(wc -c < scripts/olcrtc-core.patch) bytes"
-          else
-            echo "no core patch secret available; building the bare pinned core"
-          fi
-
       - name: Python source and release contracts
         run: |
           python3 -m unittest discover -s Tests -p 'test_*.py' -v
           python3 -m unittest discover -s scripts -p 'test_*.py' -v
-          python3 scripts/parity_check.py --selftest
-          python3 scripts/parity_check.py
+          python3 olcos-core/scripts/parity_check.py --selftest
+          python3 olcos-core/scripts/parity_check.py
 
       - name: Validate release version
         if: inputs.release-tag != ''
@@ -70,28 +54,14 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 90
     steps:
-      - name: Checkout pinned source and upstream
+      - name: Checkout source and the olcos-core submodule
         uses: actions/checkout@v5
         with:
           ref: ${{ inputs.ref }}
           submodules: recursive
           persist-credentials: false
 
-      # The olcOS core patch series is materialized from a repository secret,
-      # not committed; an empty secret builds the bare pinned core. See the
-      # source-tests job for the rationale.
-      - name: Materialize the closed core patch series
-        env:
-          CORE_PATCH_B64: ${{ secrets.CORE_PATCH_B64 }}
-        run: |
-          if [ -n "$CORE_PATCH_B64" ]; then
-            printf '%s' "$CORE_PATCH_B64" | base64 -d | gunzip > scripts/olcrtc-core.patch
-            echo "core patch materialized: $(wc -c < scripts/olcrtc-core.patch) bytes"
-          else
-            echo "no core patch secret available; building the bare pinned core"
-          fi
-
-      # Resolve before go mod tidy generates an uncommitted go.sum.
+      # The framework is keyed by the olcos-core commit and the build scripts.
       - name: Resolve framework inputs and Xcode
         id: framework
         run: |
@@ -110,25 +80,25 @@ jobs:
       - name: Set up pinned Go
         uses: actions/setup-go@v6
         with:
-          # gomobile/go.mod carries the highest go directive of the three bound
-          # modules (olcos-core needs go 1.27 for xray-core).
-          go-version-file: gomobile/go.mod
+          # olcos-core/mobile/go.mod carries the highest go directive of the
+          # three bound modules (xray-core needs go 1.27).
+          go-version-file: olcos-core/mobile/go.mod
           cache-dependency-path: |
-            olcrtc-upstream/go.sum
+            olcos-core/olcrtc/go.sum
             olcos-core/go.sum
-            gomobile/go.mod
+            olcos-core/mobile/go.sum
 
       - name: Go tests
         timeout-minutes: 20
         run: |
           mkdir -p build/logs
-          (cd gomobile && go mod tidy && go test -count=1 -timeout=10m ./...) 2>&1 | tee build/logs/go-wrapper.log
-          # Test the core as it ships: with the olcOS patch series applied,
-          # when there is one.
-          if [ -s scripts/olcrtc-core.patch ]; then git -C olcrtc-upstream apply ../scripts/olcrtc-core.patch; fi
-          # The core's DTLS-profile connection tests (two in-process pion peers
-          # with the Chrome ClientHello profile) never open their channel off
-          # Linux: reproduced on this macOS runner and on Windows, under Go
+          # olcos-core's own CI runs these on Linux; here they run on macOS,
+          # the platform closest to the iOS build.
+          (cd olcos-core/mobile && go test -count=1 -timeout=10m ./...) 2>&1 | tee build/logs/go-mobile.log
+          # olcos-core/olcrtc is the core as it ships (upstream plus the olcOS
+          # commits). Its DTLS-profile connection tests (two in-process pion
+          # peers with the Chrome ClientHello profile) never open their channel
+          # off Linux: reproduced on this macOS runner and on Windows, under Go
           # 1.26.5 and 1.27.2. The app does not enable the profile; the
           # profile-off and wire-format unit tests still run.
           # The SaluteJazz relay-window test counts dropped datagrams after a
@@ -144,10 +114,9 @@ jobs:
           # blocked in a syscall for the whole 10 minutes, in e2e and server).
           # The access log runs only on the Linux server and the apps never
           # enable it; the line-format and sink tests still run.
-          (cd olcrtc-upstream && go test -count=1 -timeout=10m \
+          (cd olcos-core/olcrtc && go test -count=1 -timeout=10m \
             -skip 'TestApplyDTLSProfile(WireShape|RejectsWrongFingerprint|TenColdConnections)|TestDatagramsCountAndDropOnlyPastWPlusD|TestFanInTwoUploaders|TestAccessFIFO|TestAccessLogLineForEvery|TestAccessLogReachesTheServerFromTheSessionConfig' \
-            ./...) 2>&1 | tee build/logs/go-upstream.log
-          if [ -s scripts/olcrtc-core.patch ]; then git -C olcrtc-upstream apply -R ../scripts/olcrtc-core.patch; fi
+            ./...) 2>&1 | tee build/logs/go-olcrtc.log
           (cd olcos-core && go test -count=1 -timeout=10m ./...) 2>&1 | tee build/logs/go-core.log
 
       - name: Build framework on cache miss
@@ -311,7 +280,11 @@ jobs:
           data = {
               "input_sha256": os.environ["INPUT_SHA256"],
               "commit": git("rev-parse", "HEAD"),
-              "upstream_commit": git("-C", "olcrtc-upstream", "rev-parse", "HEAD"),
+              "core_commit": git("-C", "olcos-core", "rev-parse", "HEAD"),
+              "upstream_commit": next(
+                  line.split("=", 1)[1]
+                  for line in Path("olcos-core/olcrtc.upstream").read_text().splitlines()
+                  if line.startswith("OLCRTC_COMMIT=")),
               "tag": os.environ["RELEASE_TAG"],
               "repository": os.environ["GITHUB_REPOSITORY"],
           }

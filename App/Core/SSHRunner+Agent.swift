@@ -1,7 +1,7 @@
 import CryptoKit
 import Foundation
 
-// Install side of the HTTPS server agent (gomobile/agent). Like olcos-bond, the
+// Install side of the HTTPS server agent (olcos-core/mobile/agent). Like olcos-bond, the
 // app carries the agent's Go sources in the bundle and the server builds them
 // once in the Go image the olcrtc install already pulls (no network, generated
 // minimal go.mod). Unlike the bond — which is a podman container — the agent
@@ -64,7 +64,7 @@ extension SSHRunner {
                     .deletingLastPathComponent()  // App/Core/
                     .deletingLastPathComponent()  // App/
                     .deletingLastPathComponent()  // project root
-                    .appendingPathComponent("gomobile")
+                    .appendingPathComponent("olcos-core/mobile")
                 return FileManager.default.fileExists(atPath: root.appendingPathComponent("agent").path) ? root : nil
             }()
         guard let folder else { throw AgentInstallError.missingSources }

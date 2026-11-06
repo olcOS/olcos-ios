@@ -1,16 +1,17 @@
 import CryptoKit
 import Foundation
 
-// Server side of bonding (gomobile/bond, the whole-server connection): the
+// Server side of bonding (olcos-core/mobile/bond, the whole-server connection): the
 // olcos-bond program in its own container on the host network. The lanes'
 // olcrtc exits on this server dial its public address, so one port carries
 // every lane back together; it answers only hellos signed with the server's
 // tunnel key (~/.olcrtc_key, mounted read-only, re-read per hello so a rotated
 // key needs no restart) and only from this machine.
 //
-// The app carries the Go sources (the gomobile/bond folder in the bundle) and
-// the server builds them once in the Go image the olcrtc install already
-// uses; a newer app rebuilds when its sources differ (`bondVersion`). The
+// The app carries the Go sources (olcos-core/mobile/bond, the bond folder in
+// the bundle) and the server builds them once in the Go image the olcrtc
+// install already uses; a newer app rebuilds when its sources differ
+// (`bondVersion`). The
 // script prints OLCOS_BOND_PORT, or OLCOS_BOND_ERROR=<reason> with exit 0
 // like the invite server.
 
@@ -56,7 +57,7 @@ extension SSHRunner {
                     .deletingLastPathComponent()  // App/Core/
                     .deletingLastPathComponent()  // App/
                     .deletingLastPathComponent()  // project root
-                    .appendingPathComponent("gomobile")
+                    .appendingPathComponent("olcos-core/mobile")
                 return FileManager.default.fileExists(atPath: root.appendingPathComponent("bond").path) ? root : nil
             }()
         guard let folder else { throw BondError.missingSources }

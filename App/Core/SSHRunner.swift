@@ -23,7 +23,7 @@ enum SSHRunner {
         static let rotateScript = "/tmp/olcrtc-ios-rotate-key.sh"
         // #452: sibling-carrier install script (see addCarrier below).
         static let addCarrierScript = "/tmp/olcrtc-ios-add-carrier.sh"
-        // scripts/olcrtc-core.patch when the app carries one, applied by
+        // olcos-core/server/olcrtc-core.patch when the app carries one, applied by
         // srv.sh (OLCRTC_CORE_PATCH) and by updateScript; see
         // corePatchUploadCommand.
         static let corePatch = "/tmp/olcrtc-ios-core.patch"
@@ -115,7 +115,7 @@ enum SSHRunner {
                     .deletingLastPathComponent()  // App/Core/
                     .deletingLastPathComponent()  // App/
                     .deletingLastPathComponent()  // project root
-                let candidate = projectRoot.appendingPathComponent("scripts/\(name).\(ext)")
+                let candidate = projectRoot.appendingPathComponent("olcos-core/server/\(name).\(ext)")
                 return FileManager.default.fileExists(atPath: candidate.path) ? candidate : nil
             }()
         guard let url, let script = try? String(contentsOf: url, encoding: .utf8) else {
@@ -142,7 +142,7 @@ enum SSHRunner {
         }
     }
 
-    /// Writes scripts/olcrtc-core.patch — olcOS's patch series for the pinned
+    /// Writes olcos-core/server/olcrtc-core.patch — olcOS's patch series for the pinned
     /// core, the same one Mobile.xcframework is built with — to
     /// RemotePaths.corePatch. srv.sh applies it (OLCRTC_CORE_PATCH in
     /// installEnv) and so does updateScript, so a server never runs a core
@@ -471,7 +471,7 @@ enum SSHRunner {
     }
 
     /// Builds the env var prefix for the non-interactive script invocation.
-    /// Variable names must match the boc olcrtc-ios patches in scripts/srv.sh.
+    /// Variable names must match the boc olcrtc-ios patches in olcos-core/server/srv.sh.
     static func installEnv(_ options: InstallOptions) -> String {
         var vars: [String] = [
             "OLCRTC_CARRIER=\(shellSafe(options.carrier))",
@@ -484,17 +484,17 @@ enum SSHRunner {
             // `$auto-provisioned` (the mimo / sub-config-name field) and
             // surfaces in ConnectionRecord, which lets us spot iOS-installed
             // VPSes vs ones provisioned manually via curl|sh. The server-side
-            // default in scripts/srv.sh matches this literal, but we set it
+            // default in olcos-core/server/srv.sh matches this literal, but we set it
             // explicitly so the marker is unconditional — even if a future
             // server-script revision drops the default we still produce the
             // marker. If you rename, update both sides together.
-            // cross-ref: scripts/srv.sh, the `sub_configname=` boc block.
+            // cross-ref: olcos-core/server/srv.sh, the `sub_configname=` boc block.
             "OLCRTC_CONFIG_NAME=auto-provisioned",
             // #442: pin the server core to the SAME upstream commit the shipped
             // Mobile.xcframework is built from. The olcrtc wire protocol is not
             // backward-compatible across upstream's #140 overhaul and there is no
             // version negotiation, so a server built from a different commit fails
-            // every tunnel right after the handshake. scripts/srv.sh reads
+            // every tunnel right after the handshake. olcos-core/server/srv.sh reads
             // OLCRTC_PIN and fetches that commit instead of cloning a moving
             // branch. Keep AppConstants.upstreamCorePin == the .gitmodules pin.
             "OLCRTC_PIN=\(AppConstants.upstreamCorePin)",
@@ -537,13 +537,13 @@ enum SSHRunner {
             vars.append("OLCRTC_SEI_ACK=\(options.seiACK)")
         }
         // NOTE: videochannel uses OLCRTC_VIDEO_{W,H,FPS,BITRATE,HW,CODEC,
-        // QR_RECOVERY,QR_SIZE,TILE_MODULE,TILE_RS} per scripts/srv.sh.
+        // QR_RECOVERY,QR_SIZE,TILE_MODULE,TILE_RS} per olcos-core/server/srv.sh.
         // #097 was: "Server defaults apply — not yet exposed in the UI."
         // #097 decision: deliberately never exposed — ten niche knobs for a
         // works-but-slow transport aren't worth the UI sprawl; the install
         // sheet's videochannel footer tells the user server defaults apply.
         //
-        // #093: OLCRTC_CACHE_DIR is another server-side knob (scripts/srv.sh:
+        // #093: OLCRTC_CACHE_DIR is another server-side knob (olcos-core/server/srv.sh:
         // CACHE_DIR="${OLCRTC_CACHE_DIR:-$HOME/.cache/olcrtc}") that relocates the Go
         // module/build cache. We deliberately don't set it — the default
         // $HOME/.cache/olcrtc persists across VPS reboots and is correct for the
@@ -572,8 +572,9 @@ enum SSHRunner {
 
     // ── old Phase-based install removed ──
     // The multi-phase approach (apt / clone / build / run) is now handled
-    // entirely by scripts/srv.sh. See that file and scripts/parity_check.py
-    // for how we stay in sync with upstream olcrtc-upstream/script/srv.sh.
+    // entirely by olcos-core/server/srv.sh. See that file and
+    // olcos-core/scripts/parity_check.py for how it stays in sync with
+    // upstream's install.sh.
 
 
     static func uninstall(host: ServerHost, secret: SSHSecret, containerName: String?,
@@ -593,7 +594,7 @@ enum SSHRunner {
     /// Strategy: find the container by name (or the first olcrtc-server-*
     /// container when no name is recorded), fetch the pinned commit into the
     /// bind-mounted deploy dir with HOST git, rebuild in a detached builder
-    /// container (the same `podman run --rm … go build` scripts/srv.sh uses),
+    /// container (the same `podman run --rm … go build` olcos-core/server/srv.sh uses),
     /// then `podman restart` so the new binary is picked up.
     static func updateScript(containerName: String?) -> String {
         let target = containerName ?? containerNamePrefix
@@ -616,7 +617,7 @@ enum SSHRunner {
         # Mobile.xcframework is built from, then rebuild. git runs on the HOST
         # against the bind-mounted deploy dir — the olcrtc image (golang:alpine)
         # ships go but NOT git, so `git` inside the container fails "git: not found"
-        # (this is the same host-git / builder-container split scripts/srv.sh
+        # (this is the same host-git / builder-container split olcos-core/server/srv.sh
         # already uses). Fetching a fixed SHA (not `git pull` on a moving branch)
         # is what stops the version drift that broke every server, and it also
         # migrates an old master-tracking install onto the pin on the next update.
@@ -632,7 +633,7 @@ enum SSHRunner {
         # continues the archived upstream; the pinned commit exists only there,
         # so an older install's origin is pointed at it first. Then apply the
         # series update() has just uploaded, if the app carries one (the one
-        # this app's Mobile.xcframework is built with, scripts/olcrtc-core.patch).
+        # this app's Mobile.xcframework is built with, olcos-core/server/olcrtc-core.patch).
         git -C "$DEPLOY_DIR" reset -q --hard
         git -C "$DEPLOY_DIR" remote set-url origin \#(AppConstants.coreRepositoryURL)
         git -C "$DEPLOY_DIR" fetch --depth 1 origin \#(AppConstants.upstreamCorePin)
@@ -649,7 +650,7 @@ enum SSHRunner {
         # needs a RUNNING container ("can only create exec sessions on running
         # containers"), but the menu offers Update for stopped containers too,
         # so updating a stopped server died with an opaque exec failure. Build
-        # in a detached builder container instead — the exact scripts/srv.sh
+        # in a detached builder container instead — the exact olcos-core/server/srv.sh
         # build line (image, flags, ./cmd/olcrtc entrypoint), with the same
         # ~/.cache/olcrtc mounts so updates reuse the module/build cache. The
         # final `podman restart` also STARTS a stopped container, so an update
@@ -902,10 +903,10 @@ enum SSHRunner {
     // MARK: #452 — Multi-carrier (sibling protocol containers on one VPS)
     //
     // One VPS can run several olcrtc protocols simultaneously: the primary
-    // install (scripts/srv.sh → server.yaml → container olcrtc-server-<id>)
+    // install (olcos-core/server/srv.sh → server.yaml → container olcrtc-server-<id>)
     // plus sibling containers named <base>-<carrier> that share the SAME
     // deploy dir / built binary / encryption key and each read their own
-    // server-<carrier>.yaml. scripts/add-carrier.sh creates them (uploaded
+    // server-<carrier>.yaml. olcos-core/server/add-carrier.sh creates them (uploaded
     // over the same base64-printf channel as rotate-key.sh); the helpers
     // below name, list, and remove them.
 
@@ -967,11 +968,11 @@ enum SSHRunner {
             .map(\.room)
     }
 
-    /// Env prefix for scripts/add-carrier.sh. Mirrors `installEnv` minus the
+    /// Env prefix for olcos-core/server/add-carrier.sh. Mirrors `installEnv` minus the
     /// build-time vars (no OLCRTC_PIN — a sibling reuses the already-built
     /// binary) plus OLCRTC_BASE_CONTAINER (the primary container whose bind
     /// mount locates the deploy dir). Var names must match the $OLCRTC_*
-    /// reads in scripts/add-carrier.sh
+    /// reads in olcos-core/server/add-carrier.sh
     /// (Tests/ServerScriptParityTests.testEnvVarNamesMatchAddCarrierScript).
     static func addCarrierEnv(_ options: InstallOptions, baseContainer: String, lane: Int? = nil) -> String {
         var vars: [String] = [
@@ -1013,7 +1014,7 @@ enum SSHRunner {
     }
 
     /// Adds a sibling carrier to an installed host: uploads
-    /// scripts/add-carrier.sh (same base64-printf channel as rotate-key.sh)
+    /// olcos-core/server/add-carrier.sh (same base64-printf channel as rotate-key.sh)
     /// and runs it synchronously — no build happens (the binary is reused),
     /// so the whole op takes seconds and the nohup/poll install pipeline
     /// would be overkill. The script prints the srv.sh result contract
@@ -1102,7 +1103,7 @@ enum SSHRunner {
         series.isEmpty ? commit : commit + "+" + series
     }
 
-    /// The SHA-256 of the patch series the app carries (scripts/olcrtc-core.patch),
+    /// The SHA-256 of the patch series the app carries (olcos-core/server/olcrtc-core.patch),
     /// "" without one. A server records it once it applied the series (srv.sh,
     /// updateScript), so a core built without it reads as another core.
     static let corePatchID: String = {
@@ -2019,7 +2020,7 @@ enum SSHRunner {
 
     // MARK: #303 — Recover config script
     //
-    // Reads the deployed `server.yaml` (written by srv.sh, see scripts/srv.sh
+    // Reads the deployed `server.yaml` (written by srv.sh, see olcos-core/server/srv.sh
     // "Generate YAML config") and `~/.olcrtc_key` for an existing container,
     // dumping both verbatim between sentinel markers so `parseRecoveredConfig`
     // can rebuild an `olcrtc://` URI without any server-side mutation.
@@ -2058,7 +2059,7 @@ enum SSHRunner {
     }
 
     /// Recovered server-side config, parsed from `recoverConfigScript` output.
-    /// Mirrors the subset of `server.yaml` (scripts/srv.sh "Generate YAML config")
+    /// Mirrors the subset of `server.yaml` (olcos-core/server/srv.sh "Generate YAML config")
     /// needed to rebuild an `olcrtc://` URI.
     struct RecoveredConfig: Equatable, Sendable {
         var carrier  : String
@@ -2096,7 +2097,7 @@ enum SSHRunner {
 
     /// Parses the `OLCRTC_RECOVER_*` block emitted by `recoverConfigScript` into
     /// a `RecoveredConfig`. The YAML between the BEGIN/END sentinels is the exact
-    /// `server.yaml` written by srv.sh (see scripts/srv.sh "Generate YAML config"):
+    /// `server.yaml` written by srv.sh (see olcos-core/server/srv.sh "Generate YAML config"):
     /// a flat, 2-space-indented structure — no lists, no multi-line scalars — so a
     /// line-based `key: "value"` scan is sufficient and avoids a YAML dependency.
     static func parseRecoveredConfig(from output: String) throws -> RecoveredConfig {
@@ -2150,7 +2151,7 @@ enum SSHRunner {
             vp8BatchSize = values["batch_size"].flatMap(Int.init)
         }
 
-        // #303: seichannel tuning (scripts/srv.sh "sei:" block) — same flat
+        // #303: seichannel tuning (olcos-core/server/srv.sh "sei:" block) — same flat
         // scan as vp8 above; the gate on transport keeps this from picking up
         // unrelated "fps"/"batch_size" keys from a different transport block.
         var seiFPS  : Int?
@@ -2194,7 +2195,7 @@ enum SSHRunner {
     // MARK: #314 — Rotate key ("generate new key" fallback for #303)
     //
     // When recoverConfig finds server.yaml unreadable/unparseable, the
-    // read-only path cannot extract the key/params. scripts/rotate-key.sh
+    // read-only path cannot extract the key/params. olcos-core/server/rotate-key.sh
     // repairs the server instead: it rotates `~/.olcrtc_key` and rewrites
     // server.yaml using srv.sh's verbatim key-generation / YAML-writing lines
     // (parity guarded by Tests/RotateKeyScriptTests.swift), restarts the
@@ -2235,7 +2236,7 @@ enum SSHRunner {
 
     // MARK: Uninstall script
 
-    // Container name prefix used by `scripts/srv.sh` (`CONTAINER_NAME="olcrtc-server-$PODMAN_ID"`).
+    // Container name prefix used by `olcos-core/server/srv.sh` (`CONTAINER_NAME="olcrtc-server-$PODMAN_ID"`).
     // Must stay in sync with the server script — a mismatch silently breaks
     // the no-name sweep below and orphans containers on the VPS.
     static let containerNamePrefix = "olcrtc-server-"
@@ -2253,7 +2254,7 @@ enum SSHRunner {
             lines.append("podman ps -a --filter 'name=olcrtc-server-' --format '{{.Names}}' | xargs -r podman rm 2>/dev/null || true")
         }
         // #431 was: rm -rf /root/olcrtc-deploy-* /tmp/olcrtc-deploy-* — WORK_DIR moved
-        //   to /opt in scripts/srv.sh, so the work dirs live there now; sweep all three
+        //   to /opt in olcos-core/server/srv.sh, so the work dirs live there now; sweep all three
         //   (/root + /tmp kept for legacy pre-move installs).
         lines.append("rm -rf /opt/olcrtc-deploy-* /root/olcrtc-deploy-* /tmp/olcrtc-deploy-* 2>/dev/null || true")
         lines.append("rm -rf ~/.cache/olcrtc 2>/dev/null || true")
@@ -2298,7 +2299,7 @@ enum SSHRunner {
                 podman rm   "$c" 2>/dev/null
             done
         fi
-        # #431: WORK_DIR is /opt/olcrtc-deploy-$PODMAN_ID (scripts/srv.sh) — sweep /opt
+        # #431: WORK_DIR is /opt/olcrtc-deploy-$PODMAN_ID (olcos-core/server/srv.sh) — sweep /opt
         # so uninstall removes the work dir; /root + /tmp kept for legacy installs.
         rm -rf /opt/olcrtc-deploy-* /root/olcrtc-deploy-* /tmp/olcrtc-deploy /tmp/olcrtc-build /tmp/olcrtc-deploy-*
         rm -f ~/.olcrtc_key

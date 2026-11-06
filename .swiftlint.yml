@@ -8,7 +8,7 @@
 # Run locally: `swiftlint`  (CI runs it on every push/PR — see ci.yml).
 
 excluded:
-  - olcrtc-upstream          # vendored Go core (not ours)
+  - olcos-core               # the Go core submodule (olcOS/olcos-core)
   - App/Mobile.xcframework   # generated gomobile binary
   - .build
   - build

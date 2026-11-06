@@ -4,7 +4,7 @@ import XCTest
 // #111: subscription links. Pins the two halves of the import pipeline:
 //  - the olcrtc-sub:// → https:// link mapping (an olcrtc-ios convention,
 //    documented in docs/uri.md), and
-//  - the sub.md payload parser (upstream spec: olcrtc-upstream/docs/sub.md —
+//  - the sub.md payload parser (upstream spec: olcos-core/olcrtc/docs/sub.md —
 //    `#key:` global fields, `olcrtc://` lines, `##key:` per-server fields
 //    bound to the nearest preceding URI).
 
@@ -81,7 +81,7 @@ final class OlcrtcSubscriptionTests: XCTestCase {
 
     // MARK: sub.md payload parsing
 
-    /// The full example from olcrtc-upstream/docs/sub.md, verbatim.
+    /// The full example from olcos-core/olcrtc/docs/sub.md, verbatim.
     private let upstreamExample = """
     #name: Zarazaex Free RU
     #update: 1778011200

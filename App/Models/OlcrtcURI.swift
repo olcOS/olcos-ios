@@ -28,7 +28,7 @@ struct OlcrtcURI {
         var roomID      : String
         var key         : String
         var clientID    : String
-        var mimo        : String   // server-side: "sub_configname" / OLCRTC_CONFIG_NAME (scripts/srv.sh)
+        var mimo        : String   // server-side: "sub_configname" / OLCRTC_CONFIG_NAME (olcos-core/server/srv.sh)
         var vp8FPS      : Int?
         var vp8BatchSize: Int?
         // #355: seichannel payload params (sei.* in docs/uri.md). nil = not in

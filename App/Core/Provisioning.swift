@@ -6,18 +6,19 @@ import UIKit
 // MARK: - Provisioning
 //
 // Manages remote operations against a ServerHost via SSH:
-//   - install   — uploads scripts/srv.sh to the VPS, runs it with env vars
+//   - install   — uploads olcos-core/server/srv.sh to the VPS, runs it with env vars
 //                 set from InstallOptions, parses OLCRTC_URI= and
 //                 OLCRTC_CONTAINER= from the output, returns InstallResult.
 //   - uninstall — stops + removes any olcrtc-server-* containers and cleans up.
 //   - reboot    — issues `sudo reboot`.
 //   - ping      — TCP-22 reachability check.
 //
-// scripts/srv.sh is a full copy of upstream olcrtc-upstream/script/srv.sh with our
-// modifications marked using # boc olcrtc-ios / # eoc olcrtc-ios markers.
-// parity_check.py (run as a build phase) verifies that unmarked lines stay
-// identical to upstream — if upstream changes a flag or command we rely on,
-// the build fails until we deliberately update scripts/srv.sh.
+// olcos-core/server/srv.sh is a full copy of upstream olcrtc's install.sh
+// with our modifications marked using # boc olcrtc-ios / # eoc olcrtc-ios
+// markers. olcos-core's parity check (scripts/parity_check.py, run by its CI)
+// verifies that unmarked lines stay identical to upstream — if upstream
+// changes a flag or command we rely on, the check fails until srv.sh is
+// deliberately updated.
 //
 // All interactive prompts in srv.sh are replaced in our boc/eoc patches
 // with env var reads (OLCRTC_CARRIER, OLCRTC_TRANSPORT, OLCRTC_ROOM_ID,
@@ -50,7 +51,7 @@ struct InstallResult: Sendable {
 /// User-chosen install parameters. Everything else (client-id, key, dns) is
 /// filled in with defaults inside the install script.
 ///
-/// Carrier matrix (mirrors upstream `script/srv.sh`):
+/// Carrier matrix (mirrors upstream `install.sh`):
 ///   - telemost, jitsi, vkcalls, salutejazz, mtslink → room ID must
 ///                                  be supplied (created by the user on
 ///                                  telemost.yandex.ru, a VK / MTS Link call
@@ -718,7 +719,7 @@ final class Provisioner: ObservableObject {
 
     // #314: "generate new key" fallback for #303 — when recoverConfig cannot
     // read/parse the deployed server.yaml, this rotates `~/.olcrtc_key` via
-    // scripts/rotate-key.sh (srv.sh-parity script: same key-gen and YAML-write
+    // olcos-core/server/rotate-key.sh (srv.sh-parity script: same key-gen and YAML-write
     // lines), restarts the container, and returns the resulting URI/container
     // so the caller can add the connection like a fresh install.
     // #452: returns RotateKeyResult — the primary's URI/container (same
@@ -754,7 +755,7 @@ final class Provisioner: ObservableObject {
     // MARK: #452 — Multi-carrier (sibling protocol containers)
 
     /// Adds a sibling carrier container to an already-installed host via
-    /// scripts/add-carrier.sh — it reuses the deploy dir / binary / key of
+    /// olcos-core/server/add-carrier.sh — it reuses the deploy dir / binary / key of
     /// `baseContainer`, so the op takes seconds (no build). Returns the
     /// sibling's URI + container name in the same shape as a fresh install.
     func addCarrier(on host: ServerHost, secret: SSHSecret,

@@ -7,7 +7,7 @@ import XCTest
 //     the reconfigure sheet was a no-op for every existing install (the room is
 //     seeded as the full URL srv.sh stores, and only a bare name was ever
 //     prefixed with the base).
-//   • scripts/rotate-key.sh — the server.yaml rewrite dropped `auth.token` (a
+//   • olcos-core/server/rotate-key.sh — the server.yaml rewrite dropped `auth.token` (a
 //     wbstream primary came back as an anonymous guest), and an unconditional
 //     `podman restart` started siblings the user had stopped on purpose.
 //   • L10nTable — every `_fmt` value touched by #470 keeps the same placeholder
@@ -64,7 +64,7 @@ final class Review470Chunk2Tests: XCTestCase {
         XCTAssertEqual(ReconfigureOptionsView.jitsiRoom("", movedTo: "https://x.example"), "")
     }
 
-    // MARK: scripts/rotate-key.sh
+    // MARK: olcos-core/server/rotate-key.sh
 
     /// Bundle resource first (device builds), source tree fallback for the
     /// simulator — the same loader RotateKeyScriptTests uses.
@@ -73,7 +73,7 @@ final class Review470Chunk2Tests: XCTestCase {
             ?? URL(fileURLWithPath: #filePath)
                 .deletingLastPathComponent()          // Tests/
                 .deletingLastPathComponent()          // olcrtc-ios/
-                .appendingPathComponent("scripts/\(name).sh")
+                .appendingPathComponent("olcos-core/server/\(name).sh")
         return try String(contentsOf: url, encoding: .utf8)
     }
 

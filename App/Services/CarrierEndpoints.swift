@@ -25,7 +25,7 @@ enum CarrierEndpoints {
     /// Public Jitsi Meet instances offered by the add-server wizard, in the
     /// order the wizard's VPS probe prefers them (`SSHRunner.jitsiProbeScript`
     /// picks the first that answers from the server). The hosts mirror
-    /// `olcrtc-upstream/docs/jitsi.instances.yaml`. On 2026-10-09 a real tunnel
+    /// `olcos-core/olcrtc/docs/jitsi.instances.yaml`. On 2026-10-09 a real tunnel
     /// from an NL VPS ran through meet.egovm.ru (~500 KB/s) and meet.riddlerx.org
     /// (~140 KB/s); the next four answer the probe but passed no data or want a
     /// login, and the rest were unreachable then — they come and go.

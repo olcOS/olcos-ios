@@ -671,7 +671,7 @@ struct VPNSessionRecovery {
     }
 }
 
-// MARK: - Lane groups (gomobile/bond)
+// MARK: - Lane groups (olcos-core/mobile/bond)
 //
 // Lanes on one conference host fail together: the owner's two Jitsi rooms sit
 // on one self-hosted server, and the old server's history has them going down

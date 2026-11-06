@@ -4,7 +4,8 @@ import XCTest
 /// The app side of the Xray server install (olcos-core server/xray/install.sh):
 /// its output contract, the scripts the app composes, the options a user may
 /// type, and the add-server plan that carries Xray. The installer itself runs
-/// offline in scripts/test_xray_server_script.py; nothing here dials a server.
+/// offline in olcos-core (scripts/test_xray_server_script.py); nothing here
+/// dials a server.
 final class XrayServerProvisioningTests: XCTestCase {
 
     private let link = "vless://0f6a4b3e-2a9c-4f1e-9e8f-0123456789ab@203.0.113.7:443"

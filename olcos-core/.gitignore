@@ -1,9 +1,0 @@
-# Go
-*.test
-*.out
-/bin/
-/dist/
-*.xcframework
-*.aar
-*.jar
-.DS_Store

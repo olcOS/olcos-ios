@@ -3,12 +3,12 @@ import XCTest
 
 // #314: tests for the "generate new key" fallback of the #303 recover flow.
 //
-// scripts/rotate-key.sh rotates ~/.olcrtc_key and rewrites server.yaml when
+// olcos-core/server/rotate-key.sh rotates ~/.olcrtc_key and rewrites server.yaml when
 // the read-only recovery (#303) finds it unreadable/unparseable. Two contracts
 // are guarded here:
 //
 //   1. srv.sh parity — blocks marked `# boc srv.sh` / `# eoc srv.sh` in
-//      rotate-key.sh are verbatim copies of scripts/srv.sh lines (the key
+//      rotate-key.sh are verbatim copies of olcos-core/server/srv.sh lines (the key
 //      generation, the "Generate YAML config" heredocs, the URI assembly).
 //      This test is rotate-key.sh's equivalent of parity_check.py: if either
 //      file drifts, it fails — no silent divergence. Comparison is
@@ -28,7 +28,7 @@ final class RotateKeyScriptTests: XCTestCase {
             ?? URL(fileURLWithPath: #filePath)
                 .deletingLastPathComponent()          // Tests/
                 .deletingLastPathComponent()          // olcrtc-ios/
-                .appendingPathComponent("scripts/\(name).sh")
+                .appendingPathComponent("olcos-core/server/\(name).sh")
         return try String(contentsOf: url, encoding: .utf8)
     }
 
@@ -58,7 +58,7 @@ final class RotateKeyScriptTests: XCTestCase {
             // parity_check.py applies to srv.sh vs upstream).
             guard inBlock, !line.isEmpty, !line.hasPrefix("#") else { continue }
             XCTAssertTrue(srvLines.contains(line),
-                "rotate-key.sh:\(idx + 1) marked srv.sh-origin but not found verbatim in scripts/srv.sh: \(line)")
+                "rotate-key.sh:\(idx + 1) marked srv.sh-origin but not found verbatim in olcos-core/server/srv.sh: \(line)")
             checked += 1
         }
         XCTAssertFalse(inBlock, "rotate-key.sh: unclosed '# boc srv.sh' block")

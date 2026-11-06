@@ -48,7 +48,7 @@ enum MTSLinkMeetingVerdict: Equatable, Sendable {
 // MARK: - MTSLinkMeetingCheck
 //
 // A meeting is checked before it is used, with the call the server itself
-// makes first: the event's public record (olcrtc-upstream
+// makes first: the event's public record (olcos-core/olcrtc
 // internal/auth/mtslink, `eventSession`) — `GET <gateway>/api/event/<id>`, no
 // cookies, the web client's Origin and Referer, a desktop browser. The core
 // takes the first session of that record and joins it as a guest; only an

@@ -115,7 +115,7 @@ struct ServersView: View {
     /// #456: re-entrancy guard for the on-entry refresh pass (requirement 4).
     @State private var entryRefreshing = false
     /// #456: an install about to run on a host that already carries olcrtc
-    /// containers — scripts/srv.sh force-removes EVERY `olcrtc-server-*` before
+    /// containers — olcos-core/server/srv.sh force-removes EVERY `olcrtc-server-*` before
     /// installing, so the user gets a choice instead of a silent wipe.
     @State private var installChoice  : InstallChoiceRequest?
     // eoc #456
@@ -1673,7 +1673,7 @@ struct ServersView: View {
     // evidence justifies.
     // #457 was: `primaryButton`'s `else` branch rendered a full-width **Install**
     // for every base without a container — INCLUDING `.unknown`, i.e. a server
-    // nothing had ever read. `scripts/srv.sh` force-removes every
+    // nothing had ever read. `olcos-core/server/srv.sh` force-removes every
     // `olcrtc-server-*` container before installing, so one tap on a re-added
     // VPS destroyed a working deployment and every sibling protocol on it.
     // `.unknown` now offers **Check server**; Install appears only on a base a
@@ -2256,7 +2256,7 @@ struct ServersView: View {
     }
 
     // boc #456: requirement 8 — never blow away a working deployment silently.
-    // scripts/srv.sh force-removes EVERY `olcrtc-server-*` container (and every
+    // olcos-core/server/srv.sh force-removes EVERY `olcrtc-server-*` container (and every
     // superseded deploy dir) before installing, and Install is the primary CTA
     // whenever no container is on record — which includes "never probed". So a
     // host we don't know is scanned first, and anything found becomes a choice.
@@ -2856,7 +2856,7 @@ struct ServersView: View {
     // MARK: #452 — Protocols on the host card (multi-carrier)
     //
     // One VPS can now run several olcrtc protocols side by side (sibling
-    // containers off one deploy dir / one key — scripts/add-carrier.sh). The
+    // containers off one deploy dir / one key — olcos-core/server/add-carrier.sh). The
     // card lists them as rows: status dot + carrier/transport + a row menu
     // (Connect / Start / Stop / Reconfigure / Recover / Remove). Rows come from
     // provisioner.listCarriers (SSHRunner.CarrierInfo) and refresh after every
@@ -4510,7 +4510,7 @@ struct ServersView: View {
     }
 
     // #314: "generate new key" fallback for #303 — rotates ~/.olcrtc_key on the
-    // VPS via scripts/rotate-key.sh (repairs server.yaml with srv.sh's exact
+    // VPS via olcos-core/server/rotate-key.sh (repairs server.yaml with srv.sh's exact
     // key/yaml semantics + restarts the container), then adds the resulting
     // connection exactly like a fresh install does (parse OLCRTC_URI=).
     private func rotateKey(_ host: ServerHost) async {
@@ -4747,7 +4747,7 @@ struct ReconfigureRequest: Identifiable {
 }
 
 /// #456: an install about to run on a host that already carries olcrtc
-/// containers. `scripts/srv.sh` force-removes EVERY `olcrtc-server-*` container
+/// containers. `olcos-core/server/srv.sh` force-removes EVERY `olcrtc-server-*` container
 /// (and its rooms and keys) before installing, so the user chooses between
 /// adopting what is there and a deliberate, warned reinstall.
 struct InstallChoiceRequest: Identifiable {

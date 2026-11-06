@@ -103,7 +103,7 @@ enum MTSLinkRoomService {
     // MARK: Endpoints
 
     /// The cabinet page: the origin the core itself names as the web client's
-    /// page (olcrtc-upstream internal/auth/mtslink, `webOrigin`). Used for the
+    /// page (olcos-core/olcrtc internal/auth/mtslink, `webOrigin`). Used for the
     /// sign-in check and as the page a replay runs in.
     static let webOrigin = URL(string: "https://my.mts-link.ru/")!
 

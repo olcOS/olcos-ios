@@ -1,7 +1,7 @@
 import XCTest
 @testable import olcrtc_ios
 
-/// The key the bond groups lanes by (gomobile/bond SetLaneGroup): rooms on one
+/// The key the bond groups lanes by (olcos-core/mobile/bond SetLaneGroup): rooms on one
 /// conference host fail together, so the bond takes its backup off that host.
 /// Pure mapping only — that the bond then prefers another group is the bond's
 /// own tests' business.

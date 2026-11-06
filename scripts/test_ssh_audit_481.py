@@ -252,7 +252,7 @@ class SSHScriptAudit481Tests(unittest.TestCase):
         if existing_container:
             self.set_state([BASE, BASE + "-jitsi"], [BASE, BASE + "-jitsi"])
         primary = (self.deploy / "server.yaml").read_bytes()
-        result = self.run_script(ROOT / "scripts/add-carrier.sh")
+        result = self.run_script(ROOT / "olcos-core/server/add-carrier.sh")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("already exists; no changes made", result.stderr)
         self.assertFalse(any(cmd[0] in ("rm", "run", "restart") for cmd in self.commands()))
@@ -275,14 +275,14 @@ class SSHScriptAudit481Tests(unittest.TestCase):
     def test_add_preserves_dangling_symlink(self):
         sibling = self.deploy / "server-jitsi.yaml"
         sibling.symlink_to(self.deploy / "missing")
-        result = self.run_script(ROOT / "scripts/add-carrier.sh")
+        result = self.run_script(ROOT / "olcos-core/server/add-carrier.sh")
         self.assertNotEqual(result.returncode, 0)
         self.assertTrue(sibling.is_symlink())
         self.assertFalse((self.deploy / "missing").exists())
         self.assertFalse(any(cmd[0] in ("rm", "run") for cmd in self.commands()))
 
     def test_add_empty_slot_still_succeeds(self):
-        result = self.run_script(ROOT / "scripts/add-carrier.sh")
+        result = self.run_script(ROOT / "olcos-core/server/add-carrier.sh")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("OLCRTC_CARRIER_ADDED=ok", result.stdout)
         self.assertIn(f"OLCRTC_CONTAINER={BASE}-jitsi", result.stdout)
@@ -293,7 +293,7 @@ class SSHScriptAudit481Tests(unittest.TestCase):
         (self.deploy / "server-telemost.yaml").write_text(yaml("telemost"))
         (self.deploy / "server-jitsi.yaml").write_text(yaml("jitsi"))
         self.set_state([BASE, live, stopped], [BASE, live], [BASE, live])
-        result = self.run_script(ROOT / "scripts/rotate-key.sh")
+        result = self.run_script(ROOT / "olcos-core/server/rotate-key.sh")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn(f"[!] {BASE} restart failed", result.stdout)
         self.assertIn(f"OLCRTC_URI=olcrtc://wbstream?datachannel@audit-room#{NEW_KEY}",
@@ -308,10 +308,10 @@ class SSHScriptAudit481Tests(unittest.TestCase):
                          [BASE, live])
 
     def test_copied_srv_blocks_remain_verbatim(self):
-        lines = {line.strip() for line in (ROOT / "scripts/srv.sh").read_text().splitlines()}
+        lines = {line.strip() for line in (ROOT / "olcos-core/server/srv.sh").read_text().splitlines()}
         for name in ("add-carrier", "rotate-key"):
             in_block, count = False, 0
-            for raw in (ROOT / f"scripts/{name}.sh").read_text().splitlines():
+            for raw in (ROOT / f"olcos-core/server/{name}.sh").read_text().splitlines():
                 line = raw.strip()
                 if line.startswith("# boc srv.sh"):
                     self.assertFalse(in_block)

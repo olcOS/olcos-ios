@@ -36,34 +36,39 @@ targets:
       - path: Shared
       - path: LICENSE
         buildPhase: resources
-      - path: scripts/srv.sh
+      # The server side comes from the olcos-core submodule (olcOS/olcos-core),
+      # the same core the Android app uses. srv.sh installs the olcrtc server
+      # on the VPS; SSHRunner loads these files from the bundle root and
+      # uploads them over SSH.
+      - path: olcos-core/server/srv.sh
         buildPhase: resources
       # #314: rotate-key.sh ships alongside srv.sh — uploaded over SSH by the
       # "generate new key" fallback of the #303 recover-connection flow.
-      - path: scripts/rotate-key.sh
+      - path: olcos-core/server/rotate-key.sh
         buildPhase: resources
       # #452: add-carrier.sh — attaches an extra carrier to an existing install
       # as a sibling container sharing the deploy dir / binary / key
       # (multi-carrier VPS); uploaded over SSH by SSHRunner.addCarrier.
-      - path: scripts/add-carrier.sh
+      - path: olcos-core/server/add-carrier.sh
         buildPhase: resources
-      # The bond endpoint's Go sources (gomobile/bond) as a folder reference:
-      # SSHRunner+Bond uploads them and the server builds olcos-bond, the
-      # side of the whole-server connection that joins the lanes back.
-      - path: gomobile/bond
+      # The bond endpoint's Go sources (olcos-core/mobile/bond) as a folder
+      # reference: SSHRunner+Bond uploads them and the server builds
+      # olcos-bond, the side of the whole-server connection that joins the
+      # lanes back.
+      - path: olcos-core/mobile/bond
         type: folder
         buildPhase: resources
-      # The HTTPS server agent's Go sources (gomobile/agent) as a folder
-      # reference: SSHRunner+Agent uploads them and the server builds
+      # The HTTPS server agent's Go sources (olcos-core/mobile/agent) as a
+      # folder reference: SSHRunner+Agent uploads them and the server builds
       # olcos-agent, the service the app manages the VPS through.
-      - path: gomobile/agent
+      - path: olcos-core/mobile/agent
         type: folder
         buildPhase: resources
-      # olcOS's patch series for the pinned core (scripts/olcrtc-core.patch,
-      # the file the framework build applies), bundled and uploaded over SSH
-      # for srv.sh and the server update. Today it carries Telemost's
-      # single-packet framing.
-      - path: scripts/olcrtc-core.patch
+      # olcOS's patch series for the pinned upstream core (the olcOS changes
+      # in olcos-core/olcrtc as one patch), bundled and uploaded over SSH for
+      # srv.sh and the server update. The framework is built from the same
+      # tree, so app and server run the same core.
+      - path: olcos-core/server/olcrtc-core.patch
         buildPhase: resources
       # olcos-core's server scripts (server/xray/install.sh, …) as a folder
       # reference, so they keep their paths; SSHRunner uploads them over SSH.
@@ -100,7 +105,7 @@ targets:
               - olcrtc
               # #111: subscription links — olcrtc-sub://host/path opens the
               # app and imports the server list (docs/uri.md → Subscription
-              # links; payload format: olcrtc-upstream/docs/sub.md).
+              # links; payload format: olcos-core/olcrtc/docs/sub.md).
               - olcrtc-sub
     settings:
       base:
@@ -108,11 +113,6 @@ targets:
         INFOPLIST_FILE: App/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_ENTITLEMENTS: App/Entitlements.plist
-    preBuildScripts:
-      - name: "Parity: scripts/srv.sh vs olcrtc-upstream/install.sh (server-side only)"
-        script: |
-          python3 "$SRCROOT/scripts/parity_check.py"
-        basedOnDependencyAnalysis: false
     resources: []
     dependencies:
       - framework: App/Mobile.xcframework

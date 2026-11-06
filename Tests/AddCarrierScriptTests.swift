@@ -1,13 +1,13 @@
 import XCTest
 @testable import olcrtc_ios
 
-// #452: tests for scripts/add-carrier.sh — the multi-carrier "add protocol"
+// #452: tests for olcos-core/server/add-carrier.sh — the multi-carrier "add protocol"
 // script that attaches an extra carrier to an existing install as a sibling
 // container ("<base>-<carrier>", running server-<carrier>.yaml from the same
 // deploy dir / binary / key). Three contracts are guarded here:
 //
 //   1. srv.sh parity — blocks marked `# boc srv.sh` / `# eoc srv.sh` in
-//      add-carrier.sh are verbatim copies of scripts/srv.sh lines (the shared
+//      add-carrier.sh are verbatim copies of olcos-core/server/srv.sh lines (the shared
 //      constants, the key-load branch, the room/DNS/tuning env patches, the
 //      "Generate YAML config" heredocs, the URI assembly). Same guarantee
 //      RotateKeyScriptTests gives rotate-key.sh: if either file drifts, this
@@ -31,7 +31,7 @@ final class AddCarrierScriptTests: XCTestCase {
             ?? URL(fileURLWithPath: #filePath)
                 .deletingLastPathComponent()          // Tests/
                 .deletingLastPathComponent()          // olcrtc-ios/
-                .appendingPathComponent("scripts/\(name).sh")
+                .appendingPathComponent("olcos-core/server/\(name).sh")
         return try String(contentsOf: url, encoding: .utf8)
     }
 
@@ -61,7 +61,7 @@ final class AddCarrierScriptTests: XCTestCase {
             // parity_check.py applies to srv.sh vs upstream).
             guard inBlock, !line.isEmpty, !line.hasPrefix("#") else { continue }
             XCTAssertTrue(srvLines.contains(line),
-                "add-carrier.sh:\(idx + 1) marked srv.sh-origin but not found verbatim in scripts/srv.sh: \(line)")
+                "add-carrier.sh:\(idx + 1) marked srv.sh-origin but not found verbatim in olcos-core/server/srv.sh: \(line)")
             checked += 1
         }
         XCTAssertFalse(inBlock, "add-carrier.sh: unclosed '# boc srv.sh' block")

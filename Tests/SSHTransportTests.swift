@@ -20,7 +20,7 @@ import XCTest
 //   * `SSHTunnelRelay.isTransportDown` (#462 audit) — needs a live channel.
 //
 // The byte fixtures are taken from the SERVER we actually talk to
-// (olcrtc-upstream `internal/client/socks.go` + `client_test.go`), not from the
+// (olcos-core/olcrtc `internal/client/socks.go` + `client_test.go`), not from the
 // RFC in the abstract — that is what makes them worth asserting.
 
 final class SSHTransportTests: XCTestCase {
@@ -214,7 +214,7 @@ final class SSHTransportTests: XCTestCase {
     // MARK: - parseConnectReply
 
     func testParseConnectReplyMatchesTheGoServerSuccessFrame() throws {
-        // olcrtc-upstream client_test.go pins this exact frame for an IPv4 or
+        // olcos-core/olcrtc client_test.go pins this exact frame for an IPv4 or
         // hostname target: replySuccess() == [5 0 0 1 0 0 0 0 0 0].
         let frame: [UInt8] = [0x05, 0x00, 0x00, 0x01, 0, 0, 0, 0, 0, 0]
         let parsed = try XCTUnwrap(try SSHSocks5.parseConnectReply(frame))

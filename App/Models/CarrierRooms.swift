@@ -8,7 +8,7 @@ import Foundation
 
 /// A VK Calls join link. The core accepts exactly
 /// `https://vk.ru/call/join/<id>` or `https://vk.com/call/join/<id>` — no
-/// query, fragment or port (olcrtc-upstream internal/auth/vkcalls,
+/// query, fragment or port (olcos-core/olcrtc internal/auth/vkcalls,
 /// `canonicalLink`). The VK app copies the link inside a sentence, sometimes
 /// with tracking parameters or the mobile host; all of that is dropped here.
 enum VKCallLink {
@@ -44,7 +44,7 @@ enum VKCallLink {
 /// встреча»), `https://my.mts-link.ru/j/<owner>/<event>`, optionally with
 /// `/session/<id>`, `/stream-new/<id>` or an ICE hint (`?ice=tcp`, also `udp` /
 /// `both`) behind it. The core takes the event id out of the link and joins as
-/// a guest (olcrtc-upstream internal/auth/mtslink, `parseEventLink`), so:
+/// a guest (olcos-core/olcrtc internal/auth/mtslink, `parseEventLink`), so:
 ///
 ///   * the owner segment is not part of the room — the core reads the event
 ///     only, and wants BOTH segments to be digits, so a link carrying an alias
@@ -53,7 +53,7 @@ enum VKCallLink {
 ///   * `/session/<id>` and `/stream-new/<id>` are dropped: they name one
 ///     occurrence (the page a meeting is shown on), the room is the meeting;
 ///   * other query parameters and fragments are dropped;
-///   * a RECOGNIZED ICE hint survives as `?ice=<mode>` (olcrtc-upstream
+///   * a RECOGNIZED ICE hint survives as `?ice=<mode>` (olcos-core/olcrtc
 ///     internal/roomhint). It is part of the saved record and of the server's
 ///     config (`serverRoom`) and no part of the room's identity
 ///     (`RoomIdentity`): the hinted and the plain link are one room.
@@ -155,7 +155,7 @@ enum MTSLinkRoom {
 
     /// The event id of a meeting link — the part that NAMES the room: the core
     /// reads it out of the link and joins by it, discarding the owner segment
-    /// entirely (olcrtc-upstream internal/auth/mtslink, `parseEventLink`).
+    /// entirely (olcos-core/olcrtc internal/auth/mtslink, `parseEventLink`).
     /// nil when this is not an MTS Link meeting link.
     static func event(of input: String) -> String? {
         guard let room = plain(input) else { return nil }
@@ -265,7 +265,7 @@ enum CarrierRoomInput {
 }
 
 /// A SaluteJazz room reference: `<code>:<password>`, each half 4–16 lowercase
-/// letters or digits (olcrtc-upstream internal/auth/salutejazz, `splitRoomRef`).
+/// letters or digits (olcos-core/olcrtc internal/auth/salutejazz, `splitRoomRef`).
 /// The password half is a credential: it is masked in logs (LogStore).
 enum SaluteJazzRoom {
     static func normalized(_ input: String) -> String? {

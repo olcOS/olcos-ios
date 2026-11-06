@@ -318,10 +318,10 @@ final class SSHRunnerExtractTests: XCTestCase {
                        .transient)
     }
 
-    // MARK: uninstallScript — container-name prefix parity with scripts/srv.sh.
+    // MARK: uninstallScript — container-name prefix parity with olcos-core/server/srv.sh.
     //
     // The server script names containers `olcrtc-server-$PODMAN_ID`
-    // (scripts/srv.sh:8). If the client uninstall fallback filter ever drifts
+    // (olcos-core/server/srv.sh:8). If the client uninstall fallback filter ever drifts
     // away from that prefix, the "sweep all olcrtc containers when we have
     // no recorded name" path will silently find zero containers and leave
     // them running on the VPS. These tests pin the prefix on both branches.
@@ -346,7 +346,7 @@ final class SSHRunnerExtractTests: XCTestCase {
                       "stale `olcrtc-srv-` prefix must not leak back")
     }
 
-    // #431: WORK_DIR moved to /opt (scripts/srv.sh) for FHS tidiness — see #429 for
+    // #431: WORK_DIR moved to /opt (olcos-core/server/srv.sh) for FHS tidiness — see #429 for
     // the earlier /tmp→/root move. Both cleanup scripts must sweep the current /opt
     // location plus the legacy /root dirs left by installs that predate the move.
     func testUninstallScriptRemovesWorkDirs() {

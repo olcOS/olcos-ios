@@ -14,7 +14,7 @@ import Darwin
 // boc #479 was: "SO_REUSEADDR is intentionally OFF — we want an honest
 // 'is anyone here?' answer". That made the probe STRICTER than the thing it
 // predicts. The core binds through `(&net.ListenConfig{}).Listen(…)`
-// (olcrtc-upstream/internal/client/client.go), and Go's listener path always
+// (olcos-core/olcrtc/internal/client/client.go), and Go's listener path always
 // sets SO_REUSEADDR. So a port carrying nothing but sockets in TIME_WAIT —
 // the residue of connections that have already closed — reads "busy" here
 // while the core would bind it without trouble.

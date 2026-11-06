@@ -4,7 +4,7 @@ import Foundation
 //
 // Client-side subscription support. A subscription is a plain-text file
 // hosted over HTTPS whose format is specified upstream in
-// `olcrtc-upstream/docs/sub.md`:
+// `olcos-core/olcrtc/docs/sub.md`:
 //
 //   #key: value      — global subscription fields (name, update, refresh, …)
 //   olcrtc://…       — one server per line (docs/uri.md format)

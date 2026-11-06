@@ -4,7 +4,7 @@ import Security
 
 // MARK: - Server agent client
 //
-// olcos-agent (gomobile/agent) is a small HTTPS service the app installs on the
+// olcos-agent (olcos-core/mobile/agent) is a small HTTPS service the app installs on the
 // user's own VPS so the server page reads status and runs room actions over a
 // pinned, signed connection instead of an SSH login on the hot path. This file
 // is the app side: the endpoint record, this phone's device key, request

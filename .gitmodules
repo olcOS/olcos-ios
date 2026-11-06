@@ -1,4 +1,3 @@
-[submodule "olcrtc"]
-	path = olcrtc-upstream
-	url = https://github.com/ghostlane-project/olcrtc.git
-	branch = proofkit
+[submodule "olcos-core"]
+	path = olcos-core
+	url = https://github.com/olcOS/olcos-core.git

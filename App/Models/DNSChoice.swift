@@ -5,7 +5,7 @@ import Foundation
 /// works where they run.
 enum DNSChoice {
     /// The resolvers the core itself falls back between when the chosen one
-    /// stays silent (olcrtc-upstream internal/protect/resolver.go, `dnsIPv6Peer`).
+    /// stays silent (olcos-core/olcrtc internal/protect/resolver.go, `dnsIPv6Peer`).
     static let publicOperatorHosts: Set<String> = [
         "1.1.1.1", "1.0.0.1", "8.8.8.8", "8.8.4.4", "9.9.9.9", "149.112.112.112",
     ]

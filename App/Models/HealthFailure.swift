@@ -11,7 +11,7 @@ import Foundation
 //
 // Everything here is pure and unit-tested (`Tests/HealthModelTests.swift`).
 // The substring tables are first-match-wins and mirror the strings the PINNED
-// core (olcrtc-upstream) and Citadel actually emit — re-audit them on every
+// core (olcos-core/olcrtc) and Citadel actually emit — re-audit them on every
 // `Mobile.xcframework` bump, exactly like `WedgeDetector.signatures`.
 
 /// #456: the stable failure vocabulary. Raw value is persisted, so NEVER rename
@@ -164,7 +164,7 @@ enum HealthFailureMapper {
         //    SaluteJazz "malformed room reference" / `expected "<code>:<password>"`;
         //    MTS Link "room must be the event join link (…/j/{owner}/{event})"
         //    / "the service has no such room" / "the event has no session to
-        //    join" (olcrtc-upstream internal/auth/mtslink).
+        //    join" (olcos-core/olcrtc internal/auth/mtslink).
         if any(["invalid room url", "room not found", "room id is required",
                 "room is required", "room url must", "room url required",
                 "malformed room reference", "<code>:<password>",
@@ -184,7 +184,7 @@ enum HealthFailureMapper {
                     "no route to host", "server misbehaving"]) { return .dnsUnreachable }
         // 4. The conferencing service refused us (room gone / token wrong).
         //    MTS Link words a turned-away guest "the service did not accept
-        //    the guest" (olcrtc-upstream internal/auth/mtslink).
+        //    the guest" (olcos-core/olcrtc internal/auth/mtslink).
         if any(["telemost api", "guest register", "join room", "get token",
                 "api error", "auth provider not found", "unsupported provider",
                 "did not accept the guest",

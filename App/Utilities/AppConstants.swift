@@ -15,14 +15,16 @@ enum AppConstants {
     // is NOT backward-compatible across upstream's #140 overhaul, and there is
     // no version negotiation — a client and server built from different commits
     // fail right after the handshake. The shipped Mobile.xcframework is built
-    // from the `olcrtc-upstream` submodule pin, so the server MUST be built from
-    // the SAME commit. `scripts/srv.sh` used to `git clone --branch master`,
-    // which silently tracked upstream's moving tip and broke every install once
-    // master diverged (it also flipped the `data:` config key to a fatal one).
+    // from olcos-core's olcrtc/ tree: the upstream release named in
+    // olcos-core/olcrtc.upstream (OLCRTC_COMMIT) plus olcos-core's patch
+    // series, so the server MUST be built from the SAME commit and series.
+    // srv.sh used to `git clone --branch master`, which silently tracked
+    // upstream's moving tip and broke every install once master diverged (it
+    // also flipped the `data:` config key to a fatal one).
     // This SHA is emitted as `OLCRTC_PIN` by `SSHRunner.installEnv` and pins the
-    // server build. Keep it EQUAL to the submodule pin in `.gitmodules` /
-    // whatever commit `scripts/build-framework.sh` builds the framework from —
-    // bump both together, never one alone.
+    // server build. Keep it EQUAL to OLCRTC_COMMIT in olcos-core/olcrtc.upstream
+    // (scripts/test_core_patch.py checks it): moving the olcos-core submodule
+    // to a core on another upstream release means bumping this pin with it.
     // #442: migrated to upstream master (f616f57) — the #140 overhaul (new
     // OLC2/HKDF record layer, handshake v3, OLVC v5 frames, instance mobile API)
     // is a hard flag day: a server built from a different commit fails every
@@ -39,7 +41,7 @@ enum AppConstants {
     /// Single source of truth for every Swift-side reference — the readiness
     /// probe (`podman image exists`), the Update Binary rebuild container, and
     /// deep uninstall's `podman rmi`. MUST stay equal to `IMAGE_NAME` in
-    /// `scripts/srv.sh` (== upstream install.sh) — a drift would leave the
+    /// `olcos-core/server/srv.sh` (== upstream install.sh) — a drift would leave the
     /// readiness probe reporting `.noImage` forever after an upstream tag bump
     /// and deep uninstall stranding the old image. Guarded by
     /// `ServerScriptParityTests.testGoImageMatchesSrvShImageName`.
@@ -223,7 +225,7 @@ enum AppConstants {
     /// Default Jitsi server base URL sent as `OLCRTC_JITSI_URL` during install.
     /// The server prefixes short room names with this base and uses it for the
     /// auto-generated room when no room is given. Keep in sync with the
-    /// `${OLCRTC_JITSI_URL:-...}` default in `scripts/srv.sh`. The wizard
+    /// `${OLCRTC_JITSI_URL:-...}` default in `olcos-core/server/srv.sh`. The wizard
     /// replaces it with the first instance its VPS probe finds working; this is
     /// only the starting value. On 2026-10-09 meet.egovm.ru was the one public
     /// instance that carried a real tunnel from an NL VPS (meet.mamba.group, the

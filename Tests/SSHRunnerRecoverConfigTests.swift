@@ -3,7 +3,7 @@ import XCTest
 
 // #303: tests for SSHRunner.parseRecoveredConfig(from:), which turns the
 // output of recoverConfigScript() (a `cat` of the deployed server.yaml,
-// see scripts/srv.sh "Generate YAML config", plus ~/.olcrtc_key) into a
+// see olcos-core/server/srv.sh "Generate YAML config", plus ~/.olcrtc_key) into a
 // RecoveredConfig used to rebuild an olcrtc:// URI for the "Recover
 // connection" flow (#303).
 

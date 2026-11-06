@@ -7,7 +7,7 @@ import Foundation
 // them by hand stops making sense once the app can use them all at once. The
 // whole-server connection is one record that joins every protocol and room of
 // the server: the engine starts a runtime per lane and, when the server runs
-// the bond endpoint (gomobile/bond, SSHRunner+Bond), carries every connection
+// the bond endpoint (olcos-core/mobile/bond, SSHRunner+Bond), carries every connection
 // an app opens over all of them together — one download gets the sum of the
 // rooms' speeds and survives a room dropping out. Without the endpoint the
 // lanes take turns per connection (LaneBalancer).
