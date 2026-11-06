@@ -1691,6 +1691,9 @@ enum L10nTable {
         .protocolOpRoomChanged: "Room changed",
         .protocolOpRoomAdded: "Room added",
         .protocolOpRoomRemoved: "Room removed",
+        .subFetchTitle: "Load the list?",
+        .subFetchMessage_fmt: "olcOS will download it from %@, and that server will see this device's IP address.",
+        .subFetchAction: "Load",
     ]
 
     // MARK: Russian
@@ -3353,5 +3356,8 @@ enum L10nTable {
         .protocolOpRoomChanged: "Комната заменена",
         .protocolOpRoomAdded: "Комната добавлена",
         .protocolOpRoomRemoved: "Комната убрана",
+        .subFetchTitle: "Загрузить список?",
+        .subFetchMessage_fmt: "olcOS скачает его с %@, и этот сервер увидит IP-адрес устройства.",
+        .subFetchAction: "Загрузить",
     ]
 }

@@ -1332,6 +1332,9 @@ extension L10nTable {
         .protocolOpRoomChanged: "Salle changée",
         .protocolOpRoomAdded: "Salle ajoutée",
         .protocolOpRoomRemoved: "Salle retirée",
+        .subFetchTitle: "Charger la liste ?",
+        .subFetchMessage_fmt: "olcOS va la télécharger depuis %@, et ce serveur verra l'adresse IP de cet appareil.",
+        .subFetchAction: "Charger",
     ]
 }
 // eoc #488

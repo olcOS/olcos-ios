@@ -1650,6 +1650,9 @@ enum L10n: String, CaseIterable {
     case protocolOpRoomChanged
     case protocolOpRoomAdded
     case protocolOpRoomRemoved
+    case subFetchTitle
+    case subFetchMessage_fmt
+    case subFetchAction
 }
 
 extension L10n {

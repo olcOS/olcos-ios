@@ -117,6 +117,9 @@ struct MainTabView: View {
     /// A device invite whose list waits in `subPrompt`: its key reaches the
     /// Keychain only when the import is confirmed.
     @State private var pendingInvite: InviteLink.Parsed?
+    /// An olcrtc-sub:// link opened from another app waits here until the user
+    /// agrees to load it: the download shows the link's server this device's address.
+    @State private var pendingFetch: URL?
     // eoc #111
 
     // The stores and the tunnel are built once per process by AppServices — a
@@ -327,6 +330,20 @@ struct MainTabView: View {
         } message: {
             Text(subError ?? "")
         }
+        .alert(L10n.subFetchTitle.localized(), isPresented: Binding(
+            get: { pendingFetch != nil },
+            set: { if !$0 { pendingFetch = nil } }
+        )) {
+            Button(L10n.subFetchAction.localized()) {
+                if let url = pendingFetch {
+                    pendingFetch = nil
+                    handleSubscriptionURL(url)
+                }
+            }
+            Button(L10n.cancel.localized(), role: .cancel) { pendingFetch = nil }
+        } message: {
+            Text(L10n.subFetchMessage_fmt.formatted(pendingFetch?.host ?? ""))
+        }
         // eoc #111
         .onAppear {
             // #412 was: `tunnel.secretsLocked = { store.secretsLocked }` wired here
@@ -426,7 +443,7 @@ struct MainTabView: View {
     /// single connection it encodes (instead of doing nothing).
     private func handleIncomingURL(_ url: URL) {
         switch url.scheme?.lowercased() {
-        case "olcrtc-sub": handleSubscriptionURL(url)
+        case "olcrtc-sub": pendingFetch = url   // loaded only after the user agrees
         case "olcrtc":
             // An old SSH full-access link is `olcrtc://host/v1/…`; a plain
             // connection link is `olcrtc://<carrier>?…` (#354).
