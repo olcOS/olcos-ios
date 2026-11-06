@@ -1,0 +1,174 @@
+"""Offline olcOS display/identity contracts, not Swift execution or an iOS build.
+
+Run: python3 -m unittest discover -s Tests -p test_olcos_branding.py -v
+Behavioral version/URL/log/URI tests also live in the native XCTest target.
+"""
+import json
+from pathlib import Path
+import re
+import hashlib
+import unittest
+
+ROOT = Path(__file__).resolve().parents[1]
+VERSION_ROW_BASELINE = 'e4842021fcf7a094a38f6eee6eb92d210f9f5424ea9162bfa3e8ba70cc301909'
+
+
+def masked(text):
+    # Preserve positions while hiding strings/comments from brace/declaration scans.
+    pattern = r'//[^\n]*|/\*[\s\S]*?\*/|"""[\s\S]*?"""|"(?:\\.|[^"\\])*"'
+    return re.sub(pattern, lambda m: re.sub(r'[^\n]', ' ', m.group()), text)
+
+
+def declarations(text):
+    clean = masked(text)
+    result = {}
+    pattern = r'(?m)^\s*(?:(?:private|fileprivate|public|internal|nonisolated|static|mutating)\s+)*(func|var)\s+(\w+)[^\n{]*'
+    for m in re.finditer(pattern, clean):
+        kind, name = m.group(1, 2)
+        start = m.start()
+        while start < m.end() and clean[start].isspace():
+            start += 1
+        brace = clean.find('{', m.end())
+        # Stored vars are not computed declarations; methods can have multiline signatures.
+        if brace < 0 or (kind == 'var' and '\n' in clean[m.end():brace]):
+            continue
+        depth = 1
+        end = brace + 1
+        while depth and end < len(clean):
+            depth += (clean[end] == '{') - (clean[end] == '}')
+            end += 1
+        if depth:
+            raise AssertionError(f'Unbalanced declaration {name}')
+        result[f'{kind} {name}'] = text[start:end]
+    return result
+
+
+def digest(text):
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def normalized_branding_source(filename, text):
+    # The olcOS rebrand permits ONE display literal in ONE declaration only.
+    # Keep the audited baseline hashes/allowlists; never normalize whole files
+    # or arbitrary strings, bindings, actions, or other version-row changes.
+    if filename == 'SettingsView':
+        row = declarations(text).get('var versionRow')
+        if row is not None:
+            canonical = row.replace('Text("olcOS")', 'Text("olcrtc-ios")', 1)
+            return text.replace(row, canonical, 1)
+    return text
+
+
+def source(relative):
+    return (ROOT / relative).read_text()
+
+
+class OlcosBrandingContracts(unittest.TestCase):
+    def test_release_identity_is_three_point_zero_build_three_without_identity_changes(self):
+        project = source('project.yml')
+        self.assertEqual(re.findall(r'^\s*MARKETING_VERSION: "([^"]+)"', project, re.M), ['3.0'])
+        self.assertEqual(re.findall(r'^\s*CURRENT_PROJECT_VERSION: "([^"]+)"', project, re.M), ['3'])
+        self.assertEqual(re.findall(r'^\s*CFBundleDisplayName: (.+)', project, re.M),
+                         ['olcOS', 'olcOS Tunnel', 'olcOS'])
+        self.assertEqual(re.findall(r'^\s*PRODUCT_BUNDLE_IDENTIFIER: (.+)', project, re.M), [
+            'io.github.hotelk52339.olcrtc-ios',
+            'io.github.hotelk52339.olcrtc-ios-tests',
+            'io.github.hotelk52339.olcrtc-ios.tunnel',
+            'io.github.hotelk52339.olcrtc-ios.widgets'])
+        self.assertTrue(project.startswith('name: olcrtc-ios\n'))
+        for name in ['olcrtc-ios', 'olcrtc-ios-tests', 'olcrtc-tunnel', 'olcrtc-widgets']:
+            self.assertIn(f'\n  {name}:\n', project)
+        self.assertIn('CFBundleURLName: olcrtc', project)
+        self.assertIn('              - olcrtc\n', project)
+        self.assertIn('              - olcrtc-sub\n', project)
+        self.assertEqual(project.count('CFBundleShortVersionString: "$(MARKETING_VERSION)"'), 3)
+        self.assertEqual(project.count('CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"'), 3)
+
+    def test_the_app_checks_for_no_updates_of_its_own(self):
+        # The app is published through the App Store, which updates it; no code
+        # may ask GitHub for a newer build or offer an installer link.
+        self.assertFalse((ROOT / 'App/Services/UpdateChecker.swift').exists())
+        constants = source('App/Utilities/AppConstants.swift')
+        self.assertNotIn('enum Update', constants)
+        self.assertNotIn('releases/latest', constants)
+
+    def test_localized_brand_values_keep_protocol_identifiers(self):
+        files = ['App/Localization/L10nTable.swift', 'App/Localization/L10nFrench.swift']
+        branded = {
+            'vpnSettingsEntryName', 'actionUpdate', 'logPortBusyOlcrtc_fmt',
+            'installTitle', 'connectingOlcrtc_fmt', 'provisioningUpdating',
+            'installPhaseBuild', 'installPhaseStart', 'installResultSuccess_fmt',
+            'updateResultSuccess', 'scanningContainers', 'actionScanVPS',
+            'scanNoContainers', 'actionDeepUninstall', 'deepUninstallResultSuccess',
+            'portInUseByOlcrtc', 'carrierEndpointsLead', 'logsScanAmbiguous_fmt'
+        }
+        counts = dict.fromkeys(branded, 0)
+        allowed_old = {
+            'uriErrorInvalidScheme': 'olcrtc://',
+            'subInvalidLink': 'olcrtc-sub://host/path',
+            'importHint': 'olcrtc://',
+        }
+        for path in files:
+            entries = re.findall(r'^\s*\.(\w+):\s*("(?:\\.|[^"\\])*")', source(path), re.M)
+            for key, literal in entries:
+                value = json.loads(literal)
+                if key in branded:
+                    counts[key] += 1
+                    self.assertIn('olcOS', value, (path, key))
+                if 'olcrtc' in value.lower():
+                    self.assertIn(key, allowed_old, (path, key, value))
+                    self.assertIn(allowed_old[key], value)
+        self.assertEqual(set(counts.values()), {3})
+
+    def test_version_row_is_byte_identical_except_exact_brand(self):
+        text = source('App/Views/SettingsView.swift')
+        row = declarations(text)['var versionRow']
+        self.assertEqual(row.count('Text("olcOS")'), 1)
+        canonical = declarations(normalized_branding_source('SettingsView', text))['var versionRow']
+        self.assertEqual(digest(canonical), VERSION_ROW_BASELINE)
+
+    def test_contract_normalization_cannot_hide_other_changes(self):
+        text = source('App/Views/SettingsView.swift')
+        row = declarations(text)['var versionRow']
+        mutation = row.replace('Text(appVersion)', 'Text("olcOS")')
+        changed = text.replace(row, mutation, 1)
+        canonical = declarations(normalized_branding_source('SettingsView', changed))['var versionRow']
+        self.assertNotEqual(digest(canonical), VERSION_ROW_BASELINE)
+        self.assertIn('Text("olcOS")', canonical)  # Only the brand's first occurrence is allowed.
+        outside = text + '\nprivate var unrelated: some View { Text("olcOS") }\n'
+        self.assertIn('var unrelated: some View { Text("olcOS") }',
+                      normalized_branding_source('SettingsView', outside))
+        self.assertEqual(normalized_branding_source('OtherView', text), text)
+
+    def test_logs_change_display_only_and_keep_storage_and_secret_redaction(self):
+        store = source('App/Services/LogStore.swift')
+        self.assertIn('return "olcOS \\(v) build \\(b)"', store)
+        self.assertIn('"/tmp/olcrtc-ios-logs"', store)
+        self.assertIn('DispatchQueue(label: "olcrtc.log-file-writer"', store)
+        self.assertIn(r'(olcrtc://[^\s#]+#)[^\s%$]+', store)
+        self.assertIn('(OLCRTC_WB_TOKEN=)', store)
+        export = source('App/Services/LogExport.swift')
+        for text in ['olcOS-\\(safeToken(label))', 'olcOS-all-logs-v',
+                     'olcOS · diagnostic log export', 'olcOS · FULL diagnostic log export',
+                     'olcOS \\(version) (build \\(build))']:
+            self.assertIn(text, export)
+        self.assertIn('.appendingPathComponent("log-exports", isDirectory: true)', export)
+
+    def test_existing_persistence_and_ssh_command_identity_remains(self):
+        for path, tokens in {
+            'App/Core/ConnectionStore.swift': ['"olcrtc_records_v2"', '"olcrtc_primary_id"', '"olcrtc_sub_meta_v1"'],
+            'App/Core/ServerHostStore.swift': ['"olcrtc_server_hosts"', '"olcrtc.serverhost.password"',
+                                             '"olcrtc.serverhost.privatekey"', '"olcrtc.serverhost.keypassphrase"'],
+            'App/Services/SettingsStore.swift': ['"olcrtc.local.socks"'],
+            'App/Core/VPNController.swift': ['"io.github.hotelk52339.olcrtc-ios"']
+        }.items():
+            text = source(path)
+            for token in tokens:
+                self.assertIn(token, text, path)
+        command = r'for key in /etc/ssh/ssh_host_*_key.pub; do ssh-keygen -lf \"$key\" -E sha256; done'
+        self.assertEqual(source('App/Localization/L10nTable.swift').count(command), 2)
+        self.assertEqual(source('App/Localization/L10nFrench.swift').count(command), 1)
+
+
+if __name__ == '__main__':
+    unittest.main()

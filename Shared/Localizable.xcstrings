@@ -1,0 +1,84 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Connect olcrtc tunnel" : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connecter olcOS" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Подключить olcOS" } }
+      }
+    },
+    "Start the olcrtc tunnel using your primary connection." : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Démarre le tunnel olcOS avec votre connexion principale." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Запускает туннель olcOS через основное подключение." } }
+      }
+    },
+    "Disconnect olcrtc tunnel" : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Déconnecter olcOS" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Отключить olcOS" } }
+      }
+    },
+    "Stop the olcrtc tunnel." : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Arrête le tunnel olcOS." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Останавливает туннель olcOS." } }
+      }
+    },
+    "No connection is configured yet — add one in the app first." : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune connexion n’est configurée : ajoutez-en une dans l’application d’abord." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Подключений ещё нет: сначала добавьте его в приложении." } }
+      }
+    },
+    "Unlock your iPhone once, then try again — the connection key is locked until then." : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Déverrouillez l’iPhone une fois, puis réessayez : la clé de connexion est verrouillée jusque-là." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Разблокируйте iPhone один раз и повторите: до этого ключ подключения недоступен." } }
+      }
+    },
+    "Connect tunnel" : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connecter" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Подключить" } }
+      }
+    },
+    "Disconnect tunnel" : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Déconnecter" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Отключить" } }
+      }
+    },
+    "Turn olcOS on or off" : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activer ou désactiver olcOS" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Включить или выключить olcOS" } }
+      }
+    },
+    "Connects through your selected connection, or disconnects." : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se connecte via la connexion choisie, ou se déconnecte." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Подключает через выбранное подключение или отключает." } }
+      }
+    },
+    "On" : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activé" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Включено" } }
+      }
+    },
+    "Toggle olcOS" : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Basculer olcOS" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Переключить olcOS" } }
+      }
+    },
+    "Connects when olcOS is off, disconnects when it is on." : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se connecte quand olcOS est désactivé, se déconnecte quand il est activé." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Подключает, когда olcOS выключен, и отключает, когда включён." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

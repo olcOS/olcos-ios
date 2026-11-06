@@ -1,0 +1,232 @@
+name: olcrtc-ios
+
+options:
+  deploymentTarget:
+    iOS: "17.0"
+  defaultConfig: Debug
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    # #vpn: versions hoisted to project level so the app and the tunnel
+    # appex ship in lockstep (CFBundleVersion drift breaks App Store
+    # validation and confuses sideloads); scripts/cut-release.py reads
+    # CURRENT_PROJECT_VERSION from here.
+    MARKETING_VERSION: "3.0"
+    CURRENT_PROJECT_VERSION: "3"
+
+packages:
+  Citadel:
+    url: https://github.com/orlandos-nl/Citadel
+    from: "0.6.0"
+
+targets:
+  olcrtc-ios:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+        excludes:
+          - "Mobile.xcframework/**"
+      # Widget state, display rules and the tunnel intents — also compiled
+      # into the widget extension (olcrtc-widgets).
+      - path: Shared
+      - path: LICENSE
+        buildPhase: resources
+      - path: scripts/srv.sh
+        buildPhase: resources
+      # #314: rotate-key.sh ships alongside srv.sh — uploaded over SSH by the
+      # "generate new key" fallback of the #303 recover-connection flow.
+      - path: scripts/rotate-key.sh
+        buildPhase: resources
+      # #452: add-carrier.sh — attaches an extra carrier to an existing install
+      # as a sibling container sharing the deploy dir / binary / key
+      # (multi-carrier VPS); uploaded over SSH by SSHRunner.addCarrier.
+      - path: scripts/add-carrier.sh
+        buildPhase: resources
+      # The bond endpoint's Go sources (gomobile/bond) as a folder reference:
+      # SSHRunner+Bond uploads them and the server builds olcos-bond, the
+      # side of the whole-server connection that joins the lanes back.
+      - path: gomobile/bond
+        type: folder
+        buildPhase: resources
+      # The HTTPS server agent's Go sources (gomobile/agent) as a folder
+      # reference: SSHRunner+Agent uploads them and the server builds
+      # olcos-agent, the service the app manages the VPS through.
+      - path: gomobile/agent
+        type: folder
+        buildPhase: resources
+      # olcOS's patch series for the pinned core (scripts/olcrtc-core.patch,
+      # the file the framework build applies), bundled and uploaded over SSH
+      # for srv.sh and the server update. Today it carries Telemost's
+      # single-packet framing.
+      - path: scripts/olcrtc-core.patch
+        buildPhase: resources
+      # olcos-core's server scripts (server/xray/install.sh, …) as a folder
+      # reference, so they keep their paths; SSHRunner uploads them over SSH.
+      - path: olcos-core/server
+        type: folder
+        buildPhase: resources
+    info:
+      path: App/Info.plist
+      properties:
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: false
+        # #376: this is the base/en fallback; localized variants live in
+        # App/<lang>.lproj/InfoPlist.strings (the OS reads the prompt from the
+        # bundle, so it can't go through the runtime L10n enum).
+        NSCameraUsageDescription: "Used to scan QR codes for importing server connections."
+        UIBackgroundModes:
+          - audio
+        UILaunchScreen: {}
+        # The live session on the Lock Screen and in the Dynamic Island
+        # (TunnelLiveActivityPublisher); updated from the app, no push.
+        NSSupportsLiveActivities: true
+        # #340 was: UIUserInterfaceStyle: Dark (#258 forced dark app-wide) —
+        # appearance now follows the in-app System/Light/Dark setting via
+        # preferredColorScheme; the plist key would have overridden it.
+        # #241: home-screen name shows the brand "olcOS"
+        # instead of the technical target "olcrtc-ios". Technical IDs (scheme,
+        # bundle id, container, OLCRTC_* env) stay lowercase olcrtc.
+        CFBundleDisplayName: olcOS
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        CFBundleURLTypes:
+          - CFBundleURLName: olcrtc
+            CFBundleURLSchemes:
+              - olcrtc
+              # #111: subscription links — olcrtc-sub://host/path opens the
+              # app and imports the server list (docs/uri.md → Subscription
+              # links; payload format: olcrtc-upstream/docs/sub.md).
+              - olcrtc-sub
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.hotelk52339.olcrtc-ios
+        INFOPLIST_FILE: App/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_ENTITLEMENTS: App/Entitlements.plist
+    preBuildScripts:
+      - name: "Parity: scripts/srv.sh vs olcrtc-upstream/install.sh (server-side only)"
+        script: |
+          python3 "$SRCROOT/scripts/parity_check.py"
+        basedOnDependencyAnalysis: false
+    resources: []
+    dependencies:
+      - framework: App/Mobile.xcframework
+        embed: true
+        codeSign: true
+      - sdk: libresolv.tbd
+      - sdk: libz.tbd
+      - package: Citadel
+      # #vpn: build + embed the packet-tunnel appex into PlugIns/ (XcodeGen
+      # embeds app-extension target dependencies there; explicit embed keeps
+      # the intent visible).
+      - target: olcrtc-tunnel
+        embed: true
+      # Home Screen / Lock Screen / CarPlay widget and the iOS 18 Control
+      # Centre toggle.
+      - target: olcrtc-widgets
+        embed: true
+
+  olcrtc-ios-tests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: olcrtc-ios
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.hotelk52339.olcrtc-ios-tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/olcrtc-ios.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/olcrtc-ios
+        BUNDLE_LOADER: $(TEST_HOST)
+
+  # #vpn: NEPacketTunnelProvider appex — system-VPN mode. Classic NSExtension
+  # (TN3134: iOS packet tunnels are app extensions), embedded into the app's
+  # PlugIns/ via the olcrtc-ios dependency above. Simulator CI compiles it but
+  # can never run it; on-device VPN needs a paid team (free-ID sideloads strip
+  # the NE entitlement and the app degrades to proxy-only at runtime).
+  olcrtc-tunnel:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Tunnel
+      # Shared providerConfiguration codec — the app target already compiles it
+      # via its App/ source tree.
+      - path: App/Models/VPNConfig.swift
+      # The widget state the extension marks up/down and re-confirms while the
+      # VPN runs (the app may be suspended meanwhile).
+      - path: Shared/TunnelWidgetState.swift
+    info:
+      path: Tunnel/Info.plist
+      properties:
+        CFBundleDisplayName: olcOS Tunnel
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.networkextension.packet-tunnel
+          NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).PacketTunnelProvider"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.hotelk52339.olcrtc-ios.tunnel
+        INFOPLIST_FILE: Tunnel/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Tunnel/Entitlements.plist
+        SKIP_INSTALL: YES
+        APPLICATION_EXTENSION_API_ONLY: YES
+        # REQUIRED: VPNConfig's OlcrtcConnection bridge is compiled out of the
+        # extension via #if !OLCRTC_TUNNEL_EXTENSION; $(inherited) keeps the
+        # per-config DEBUG condition.
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) OLCRTC_TUNNEL_EXTENSION"
+    dependencies:
+      # gomobile emits a STATIC framework — the extension links its own copy
+      # (embedding would duplicate the archive the app bundle already carries).
+      - framework: App/Mobile.xcframework
+        embed: false
+      - sdk: NetworkExtension.framework
+      - sdk: libresolv.tbd
+      - sdk: libz.tbd
+
+  # Widgets: the status widget (Home Screen, StandBy, CarPlay on iOS 26, Lock
+  # Screen) and the iOS 18 Control Centre toggle. Its buttons send intents the
+  # system runs in the APP's process (Shared/TunnelControlIntents.swift). It
+  # reads the app's theme and strings from the app's own sources; the App
+  # Group carries the tunnel state (absent on a free-account sideload, where
+  # the widget falls back to a plain on/off button).
+  olcrtc-widgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Widgets
+      - path: Shared/TunnelWidgetState.swift
+      - path: Shared/TunnelWidgetDisplay.swift
+      - path: Shared/TunnelControlIntents.swift
+      - path: Shared/TunnelActivityAttributes.swift
+      # The Siri / Control Centre strings in Russian and French.
+      - path: Shared/Localizable.xcstrings
+      - path: Shared/TunnelActivityViews.swift
+      - path: App/Localization/L10n.swift
+      - path: App/Localization/L10nTable.swift
+      - path: App/Localization/L10nFrench.swift
+      - path: App/UI/Theme.swift
+    info:
+      path: Widgets/Info.plist
+      properties:
+        CFBundleDisplayName: olcOS
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.hotelk52339.olcrtc-ios.widgets
+        INFOPLIST_FILE: Widgets/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Widgets/Entitlements.plist
+        SKIP_INSTALL: YES
+        APPLICATION_EXTENSION_API_ONLY: YES
+        # L10n reads the language the app shares instead of SettingsStore,
+        # and the intents' perform() bodies compile out (the app runs them).
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) OLCOS_WIDGET_EXTENSION"

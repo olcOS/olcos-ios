@@ -1,0 +1,3 @@
+/* #488: Native extension errors use this target's own French resource bundle. */
+"vpn.startRequiresApp" = "Ouvrez olcOS et connectez-vous depuis l’app pour rétablir les identifiants VPN.";
+"vpn.unsupportedDNS" = "Le mode VPN nécessite un serveur DNS IPv4 sur le port 53. Ouvrez l’app et choisissez un résolveur DNS compatible dans Réglages.";

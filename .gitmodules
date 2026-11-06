@@ -1,0 +1,4 @@
+[submodule "olcrtc"]
+	path = olcrtc-upstream
+	url = https://github.com/ghostlane-project/olcrtc.git
+	branch = proofkit
