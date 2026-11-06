@@ -33,7 +33,25 @@ def executable(path, content):
     path.chmod(0o755)
 
 
-def bundle(app, version="1.0", build="1", extension=True):
+NIOSSH_FIX = b"ECDSA signature mpint exceeds curve point size"
+
+# The lines of swift-nio-ssh's NIOSSHSignature.swift that the GHSA-998x-vgvp-xwpc fix changes.
+VULNERABLE_NIOSSH = """private struct ECDSASignatureHelper {
+    private init(r: ByteBuffer, s: ByteBuffer, pointSize: Int) {
+        let rByteView = r.mpIntView
+        let sByteView = s.mpIntView
+
+        let rByteStartingOffset = pointSize - rByteView.count
+    }
+
+    static func toECDSASignature<Signature: ECDSASignatureProtocol>(r: ByteBuffer, s: ByteBuffer) throws -> Signature {
+        let helper = ECDSASignatureHelper(r: r, s: s, pointSize: Signature.pointSize)
+    }
+}
+"""
+
+
+def bundle(app, version="1.0", build="1", extension=True, nio_fix=True):
     entries = [(app, "olcrtc-ios", "io.github.hotelk52339.olcrtc-ios")]
     if extension:
         entries.append((app / "PlugIns/olcrtc-tunnel.appex", "olcrtc-tunnel",
@@ -42,7 +60,10 @@ def bundle(app, version="1.0", build="1", extension=True):
                         "io.github.hotelk52339.olcrtc-ios.widgets"))
     for folder, binary, identifier in entries:
         folder.mkdir(parents=True, exist_ok=True)
-        (folder / binary).write_bytes(b"mock executable, not an iOS binary")
+        content = b"mock executable, not an iOS binary"
+        if binary == "olcrtc-ios" and nio_fix:
+            content += b" " + NIOSSH_FIX
+        (folder / binary).write_bytes(content)
         with (folder / "Info.plist").open("wb") as stream:
             plistlib.dump({
                 "CFBundleIdentifier": identifier, "CFBundleExecutable": binary,
@@ -148,7 +169,8 @@ class ShellFixture(unittest.TestCase):
         (self.root / "olcos-core").mkdir()
         (self.root / "App/Mobile.xcframework").mkdir(parents=True)
         (self.root / "App/Mobile.xcframework/keep").write_text("existing framework")
-        for name in ("fetch-framework.sh", "build-framework.sh", "package-ipa.sh", "cut-release.py"):
+        for name in ("fetch-framework.sh", "build-framework.sh", "package-ipa.sh", "cut-release.py",
+                     "patch-swift-packages.py"):
             shutil.copy2(ROOT / "scripts" / name, self.root / "scripts" / name)
         (self.root / "project.yml").write_text('MARKETING_VERSION: "1.0"\nCURRENT_PROJECT_VERSION: "1"\n')
         self.bin = self.root / "bin"
@@ -257,9 +279,61 @@ class PackagingTests(ShellFixture):
     def setUp(self):
         super().setUp()
         executable(self.bin / "xcodegen", "#!/usr/bin/env bash\nexit 0\n")
-        executable(self.bin / "xcodebuild",
-                   '#!/usr/bin/env bash\necho "mock device build"\nexit "${MOCK_XCODE_EXIT:-0}"\n')
+        # Resolving checks swift-nio-ssh out (the vulnerable code) into the
+        # -clonedSourcePackagesDirPath folder; any other call is the device build.
+        executable(self.bin / "xcodebuild", """#!/usr/bin/env bash
+spm=""; prev=""
+for a in "$@"; do
+  [ "$prev" = "-clonedSourcePackagesDirPath" ] && spm="$a"
+  prev="$a"
+done
+case " $* " in
+  *" -resolvePackageDependencies "*)
+    d="$spm/checkouts/swift-nio-ssh/Sources/NIOSSH/Keys And Signatures"
+    mkdir -p "$d"
+    [ -f "$d/NIOSSHSignature.swift" ] || cp "$MOCK_NIOSSH_SOURCE" "$d/NIOSSHSignature.swift"
+    echo "mock resolve"
+    exit 0 ;;
+esac
+[ -n "$spm" ] || { echo "the device build must use the resolved packages" >&2; exit 64; }
+echo "mock device build"
+exit "${MOCK_XCODE_EXIT:-0}"
+""")
+        source = self.root / "mock-NIOSSHSignature.swift"
+        source.write_text(VULNERABLE_NIOSSH)
+        self.env["MOCK_NIOSSH_SOURCE"] = str(source)
+        self.checkout = (self.root / "build/spm/checkouts/swift-nio-ssh/Sources/NIOSSH"
+                         / "Keys And Signatures/NIOSSHSignature.swift")
         self.app = self.root / "build/device/Build/Products/Release-iphoneos/olcrtc-ios.app"
+
+    def test_swift_nio_ssh_fix_is_applied_before_the_build(self):
+        bundle(self.app)
+        result = self.run_script("package-ipa.sh")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        patched = self.checkout.read_text()
+        self.assertIn(NIOSSH_FIX.decode(), patched)
+        self.assertIn("pointSize: Int) throws {", patched)
+        self.assertIn("let helper = try ECDSASignatureHelper(", patched)
+        # A second run finds the checkout patched and leaves it as it is.
+        result = self.run_script("package-ipa.sh")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.checkout.read_text(), patched)
+
+    def test_unknown_swift_nio_ssh_never_builds(self):
+        bundle(self.app)
+        (self.root / "olcos-ios-unsigned.ipa").write_bytes(b"stale")
+        (self.root / "mock-NIOSSHSignature.swift").write_text("// some other version\n")
+        result = self.run_script("package-ipa.sh")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("GHSA-998x-vgvp-xwpc", result.stderr)
+        self.assertFalse((self.root / "olcos-ios-unsigned.ipa").exists())
+
+    def test_app_without_the_fix_never_packages(self):
+        bundle(self.app, nio_fix=False)
+        result = self.run_script("package-ipa.sh")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("GHSA-998x-vgvp-xwpc", result.stderr)
+        self.assertFalse((self.root / "olcos-ios-unsigned.ipa").exists())
 
     def test_unsigned_asset_contains_native_app_and_extension(self):
         bundle(self.app)
@@ -335,6 +409,16 @@ class WorkflowSafetyTests(unittest.TestCase):
         self.assertIn("-resultBundlePath build/tests.xcresult", self.build)
         self.assertIn("2>&1 | tee build/logs/xctest.log", self.build)
         self.assertIn("-jobs 2", (ROOT / "scripts/package-ipa.sh").read_text())
+
+    def test_tests_build_from_the_patched_swift_nio_ssh(self):
+        patch = self.build.index("python3 scripts/patch-swift-packages.py build/spm")
+        resolve = self.build.index("xcodebuild -resolvePackageDependencies")
+        native = self.build.index("- name: Build and run XCTest")
+        self.assertLess(resolve, patch)
+        self.assertLess(patch, native)
+        test_step = self.build[native:]
+        self.assertIn("-clonedSourcePackagesDirPath build/spm", test_step)
+        self.assertIn("-disableAutomaticPackageResolution", test_step)
 
     def test_temporary_branch_and_manual_triggers(self):
         self.assertIn("'release/olcos-*'", self.ci)

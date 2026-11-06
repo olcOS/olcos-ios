@@ -173,6 +173,18 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      # Citadel's swift-nio-ssh fork has no release with the fix for
+      # GHSA-998x-vgvp-xwpc: resolve the packages into build/spm, apply Apple's
+      # fix to the checkout, and build from it without resolving again.
+      - name: Resolve Swift packages and apply the swift-nio-ssh fix
+        timeout-minutes: 10
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project olcrtc-ios.xcodeproj \
+            -scheme olcrtc-ios-tests \
+            -clonedSourcePackagesDirPath build/spm
+          python3 scripts/patch-swift-packages.py build/spm
+
       - name: Build and run XCTest
         timeout-minutes: 30
         run: |
@@ -219,6 +231,8 @@ jobs:
             -destination "platform=iOS Simulator,id=$UDID,arch=$(uname -m)" \
             -destination-timeout 120 \
             -derivedDataPath build/simulator \
+            -clonedSourcePackagesDirPath build/spm \
+            -disableAutomaticPackageResolution \
             -resultBundlePath build/tests.xcresult \
             ONLY_ACTIVE_ARCH=YES \
             2>&1 | tee build/logs/xctest.log

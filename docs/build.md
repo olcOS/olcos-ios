@@ -114,6 +114,16 @@ open olcrtc-ios.xcodeproj
 
 `project.yml` is authoritative. Regenerate when it changes or source/resource
 membership changes; do not edit generated project/plist output as the fix.
+
+Citadel, the SSH client, pins a fork of swift-nio-ssh with no release that
+fixes [GHSA-998x-vgvp-xwpc](https://github.com/apple/swift-nio-ssh/security/advisories/GHSA-998x-vgvp-xwpc)
+(an out-of-bounds stack write from a malformed ECDSA signature in the server's
+key exchange). `scripts/patch-swift-packages.py` applies Apple's fix to the
+resolved checkout; CI and `scripts/package-ipa.sh` run it before building and
+the packaging script checks that the app carries it. A build started from
+Xcode.app uses its own checkout under DerivedData: after Xcode resolves the
+packages, run the script on that `SourcePackages` folder
+(`~/Library/Developer/Xcode/DerivedData/olcrtc-ios-*/SourcePackages`).
 XcodeGen generates one scheme per target: use `olcrtc-ios` to run the app and
 `olcrtc-ios-tests` for tests; the embedded extension targets are `olcrtc-tunnel`
 (the VPN) and `olcrtc-widgets` (widgets and the iOS 18 Control Centre toggle). [Project specification](../project.yml).
@@ -260,7 +270,7 @@ itself):
 ```
 
 The output is `olcos-ios-unsigned.ipa`; the script checks that
-`olcrtc-tunnel.appex` is embedded. The IPA is **unsigned**, so installing it
+`olcrtc-tunnel.appex` is embedded and that the swift-nio-ssh fix is built in. The IPA is **unsigned**, so installing it
 requires appropriate signing and is not equivalent to App Store distribution
 or verified VPN support. [Packaging script](../scripts/package-ipa.sh).
 

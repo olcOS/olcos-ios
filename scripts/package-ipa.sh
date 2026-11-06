@@ -26,6 +26,16 @@ mkdir -p build/logs
 # Always regenerate: project.yml, not an old .xcodeproj, owns the version.
 xcodegen generate --spec project.yml
 
+# Citadel's swift-nio-ssh fork has no release with the fix for
+# GHSA-998x-vgvp-xwpc: resolve the packages, apply Apple's fix to the checkout
+# (scripts/patch-swift-packages.py) and build from it without resolving again.
+SPM="$ROOT/build/spm"
+xcodebuild -resolvePackageDependencies \
+  -project olcrtc-ios.xcodeproj \
+  -scheme olcrtc-ios \
+  -clonedSourcePackagesDirPath "$SPM"
+python3 scripts/patch-swift-packages.py "$SPM"
+
 echo "note: building olcrtc-ios for device (Release, unsigned) ..."
 xcodebuild \
   -quiet -showBuildTimingSummary \
@@ -36,6 +46,8 @@ xcodebuild \
   -sdk iphoneos \
   -destination 'generic/platform=iOS' \
   -derivedDataPath build/device \
+  -clonedSourcePackagesDirPath "$SPM" \
+  -disableAutomaticPackageResolution \
   -resultBundlePath "build/device-$(date +%s)-$$.xcresult" \
   CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
   build 2>&1 | tee build/logs/device-build.log
@@ -61,6 +73,12 @@ if [ ! -d "$WIDGETS" ]; then
 fi
 
 python3 scripts/cut-release.py --check-bundle "$APP"
+
+# The fix's error text is in the binary only when the patched swift-nio-ssh was built.
+if ! grep -aq "ECDSA signature mpint exceeds curve point size" "$APP/olcrtc-ios"; then
+  echo "error: $APP was built without the swift-nio-ssh fix for GHSA-998x-vgvp-xwpc" >&2
+  exit 1
+fi
 
 # An .ipa is just a zip with a Payload/ folder containing the .app.
 # Use a fresh staging folder, never delete a caller's existing Payload/.
