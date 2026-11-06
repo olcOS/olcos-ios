@@ -15,8 +15,8 @@ set -e
 # fi
 # eoc olcrtc-ios-rejected
 
-# boc olcrtc-ios: beta-notice banner (the app surfaces its own status UI; upstream prints a telegram handle here). Replaces upstream's `echo t.me/...`.
-echo "ЕСЛИ У ВАС ЕСТЬ ПРОБЛЕМЫ - Я В КУРСЕ, ПРОЕКТ В БЕТЕ, ПО ПРОБЛЕМАМ В ЧАТ t.me/openlibrecommunity ИЛИ ВООБЩЕ НЕКУДА, ЖДИТЕ РЕЛИЗА"
+# boc olcrtc-ios: beta-notice banner pointing to the olcOS issue tracker (upstream prints its own telegram handle here). Replaces upstream's `echo t.me/...`.
+echo "olcOS (бета). Вопросы и ошибки: https://github.com/olcOS/olcos/issues"
 # eoc olcrtc-ios
 # boc olcrtc-ios-rejected: upstream prints a telegram handle banner — replaced by the beta-notice boc above
 # echo "t.me/openlibrecommunity"
