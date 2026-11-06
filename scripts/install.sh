@@ -10,7 +10,7 @@
 #   curl -fsSL https://raw.githubusercontent.com/olcOS/olcos/main/install.sh | sudo bash
 set -euo pipefail
 
-CORE_COMMIT="fbce2389845f1359ae3814d126ad1cf2486f89ae"
+CORE_COMMIT="6d078cfc26250cdf4b44d39ccff8993182b47b91"
 SOURCE="https://raw.githubusercontent.com/olcOS/olcos-core/$CORE_COMMIT"
 URL="$SOURCE/server/install.sh"
 TMP="$(mktemp)"
