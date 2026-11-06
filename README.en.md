@@ -5,7 +5,7 @@
 <h1 align="center">olcOS for iPhone and iPad</h1>
 
 <p align="center">
-  Source code of the olcOS app for iOS and iPadOS 17+ and of the shared Go core.<br>
+  Source code of the olcOS app for iOS and iPadOS 17+.<br>
   olcOS helps you get around mobile internet whitelists through video calls.
 </p>
 
@@ -81,8 +81,9 @@ xcodegen generate --spec project.yml
 open olcrtc-ios.xcodeproj
 ```
 
-This repository also holds the Go core that the Android app uses: `gomobile/` (the tunnel glue, room bonding and the
-server agent), `olcos-core/` (the Xray engine) and the `olcrtc-upstream/` submodule.
+The Go core and the server side live in a separate repository, [olcOS/olcos-core](https://github.com/olcOS/olcos-core),
+included here as the `olcos-core/` submodule. The Android app uses the same core: the olcrtc client, the tunnel glue,
+room bonding, the server agent, the Xray engine and the server install scripts.
 
 Documentation:
 
@@ -105,7 +106,7 @@ Use the app within the law of your country and the terms of the services your tr
 
 olcOS is released under the [MIT](LICENSE) license, Copyright (c) 2026 Hotelk52339. The olcrtc core
 ([ghostlane-project/olcrtc](https://github.com/ghostlane-project/olcrtc), the continuation of the archived
-[openlibrecommunity/olcrtc](https://github.com/openlibrecommunity/olcrtc)) is under [Apache-2.0](olcrtc-upstream/LICENSE)
-with a [NOTICE](olcrtc-upstream/NOTICE); the original upstream license is
-[WTFPL](olcrtc-upstream/docs/upstream-license-wtfpl.txt). Xray-core is under
+[openlibrecommunity/olcrtc](https://github.com/openlibrecommunity/olcrtc)) is under [Apache-2.0](https://github.com/olcOS/olcos-core/blob/main/olcrtc/LICENSE)
+with a [NOTICE](https://github.com/olcOS/olcos-core/blob/main/olcrtc/NOTICE); the original upstream license is
+[WTFPL](https://github.com/olcOS/olcos-core/blob/main/olcrtc/docs/upstream-license-wtfpl.txt). Xray-core is under
 [MPL-2.0](https://github.com/XTLS/Xray-core/blob/main/LICENSE).

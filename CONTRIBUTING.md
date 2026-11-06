@@ -83,21 +83,27 @@ The release owner coordinates subsequent build/version changes; contributors
 should not race the build counter or bump it for each pull request.
 Preserve bundle IDs, storage keys and URI compatibility.
 
-## Server-script parity is a special contract
+## The core and the server scripts live in olcos-core
 
-`scripts/srv.sh` is a locally adapted copy of the pinned upstream `install.sh`.
+The Go core, `srv.sh` and the other server scripts are in
+[olcOS/olcos-core](https://github.com/olcOS/olcos-core), the `olcos-core/`
+submodule here. Change them in a pull request there, then move the submodule
+in this repository; the app bundles whatever commit the submodule points at.
+
+`server/srv.sh` is a locally adapted copy of the pinned upstream `install.sh`.
 The checker requires local changes inside `# boc olcrtc-ios` /
 `# eoc olcrtc-ios` blocks and deliberately rejected upstream lines inside
 `# boc olcrtc-ios-rejected: <reason>` blocks; preserve those markers and run:
-[Parity implementation](scripts/parity_check.py).
+[Parity implementation](https://github.com/olcOS/olcos-core/blob/main/scripts/parity_check.py).
 
 ```bash
-python3 scripts/parity_check.py
+python3 olcos-core/scripts/parity_check.py
 ```
 
-Do not apply this marker convention to unrelated app code. When changing the
-upstream pin, review script parity, framework shims, carrier expectations and
-generated bindings together rather than disabling checks.
+Do not apply this marker convention to unrelated app code. When moving to a
+core on another upstream release, review `AppConstants.upstreamCorePin`,
+carrier expectations and generated bindings together rather than disabling
+checks.
 The add-carrier and key-rotation scripts also have cross-script contracts.
 [Script tests](Tests/ServerScriptParityTests.swift) ·
 [add-carrier tests](Tests/AddCarrierScriptTests.swift) ·
@@ -130,6 +136,6 @@ attachment yourself. [Security policy](SECURITY.md) · [log pipeline](App/Servic
 
 Preserve the project [LICENSE](LICENSE) and applicable dependency licenses when
 distributing the software. The olcrtc core is
-[Apache-2.0](olcrtc-upstream/LICENSE) with a [NOTICE](olcrtc-upstream/NOTICE);
-the original upstream's [WTFPL](olcrtc-upstream/docs/upstream-license-wtfpl.txt)
+[Apache-2.0](https://github.com/olcOS/olcos-core/blob/main/olcrtc/LICENSE) with a [NOTICE](https://github.com/olcOS/olcos-core/blob/main/olcrtc/NOTICE);
+the original upstream's [WTFPL](https://github.com/olcOS/olcos-core/blob/main/olcrtc/docs/upstream-license-wtfpl.txt)
 travels with it.

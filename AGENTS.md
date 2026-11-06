@@ -17,10 +17,13 @@ Code and executable tests take precedence over historical comments.
   and `olcrtc-tunnel`, plus the `olcrtc://` and `olcrtc-sub://` wire formats unless
   an explicitly reviewed migration changes them. [Project](project.yml) ·
   [URI contract](docs/uri.md).
-- This is the iOS/iPadOS 17+ codebase and the home of the shared Go core
-  (`gomobile/`, `olcos-core/`, `olcrtc-upstream/`). The Android client lives in
-  `olcOS/olcos-android` and builds the same core. Windows and macOS are plans,
-  not shipping clients; do not use macOS build tooling as evidence of a macOS app.
+- This is the iOS/iPadOS 17+ codebase. The shared Go core and the server side
+  (olcrtc, the gomobile module, the Xray engine, `srv.sh` and the other server
+  scripts) live in `olcOS/olcos-core`, included as the `olcos-core/`
+  submodule: change them there, then move the submodule. The Android client
+  lives in `olcOS/olcos-android` and builds the same core. Windows and macOS
+  are plans, not shipping clients; do not use macOS build tooling as evidence
+  of a macOS app.
 
 ## Change discipline
 
@@ -29,18 +32,19 @@ Code and executable tests take precedence over historical comments.
 - No task-number markers or private tracker references are required. Existing
   historical markers do not establish a public contribution convention.
 - **Exception:** preserve the machine-checked `boc/eoc olcrtc-ios` and rejected
-  upstream blocks in `scripts/srv.sh`, plus the parity blocks in related scripts.
-  These are executable maintenance contracts, not general comment style.
-  [Parity checker](scripts/parity_check.py) · [script tests](Tests/ServerScriptParityTests.swift).
+  upstream blocks in olcos-core's `server/srv.sh`, plus the parity blocks in
+  related scripts. These are executable maintenance contracts, not general
+  comment style.
+  [Parity checker](https://github.com/olcOS/olcos-core/blob/main/scripts/parity_check.py) · [script tests](Tests/ServerScriptParityTests.swift).
 - Use factual Conventional Commits: `fix(vpn): serialize profile cleanup`.
   Do not attribute commits to an AI, prompt, conversation or user request.
 - Follow the owner's authorization for commits, pushes and releases. Do not
   publish without authorization; explicit authorization is not overridden by
   a blanket prohibition in this file.
 - Preserve the project [LICENSE](LICENSE), the core's
-  [Apache-2.0 licence](olcrtc-upstream/LICENSE) and [NOTICE](olcrtc-upstream/NOTICE)
+  [Apache-2.0 licence](https://github.com/olcOS/olcos-core/blob/main/olcrtc/LICENSE) and [NOTICE](https://github.com/olcOS/olcos-core/blob/main/olcrtc/NOTICE)
   (ghostlane-project/olcrtc), the original upstream's
-  [WTFPL](olcrtc-upstream/docs/upstream-license-wtfpl.txt) and applicable
+  [WTFPL](https://github.com/olcOS/olcos-core/blob/main/olcrtc/docs/upstream-license-wtfpl.txt) and applicable
   dependency notices.
 
 ## Architecture and security invariants
@@ -71,7 +75,7 @@ Code and executable tests take precedence over historical comments.
   and dropped; UDP is not forwarded except the DNS truncation mechanism.
   Reject VPN `videochannel` and unsupported system DNS before routes start.
   Never describe these controls as a universal kill switch.
-  [Provider](Tunnel/PacketTunnelProvider.swift) · [tunstack](gomobile/tunstack/tunstack.go).
+  [Provider](Tunnel/PacketTunnelProvider.swift) · [tunstack](https://github.com/olcOS/olcos-core/blob/main/mobile/tunstack/tunstack.go).
 - SSH uses endpoint-bound TOFU: automatically remember the first key for the
   original host and port, including SOCKS relay attempts, then require a match.
   Reject changed keys; only an explicit, confirmed trust reset may permit

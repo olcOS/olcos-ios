@@ -6,10 +6,10 @@
 
 Use macOS with **full Xcode**, an iOS SDK/runtime appropriate to the iOS 17+
 deployment target, XcodeGen and GitHub CLI. Building the core from source also
-needs Go; follow the pinned upstream `go.mod`, not an arbitrary older compiler.
-The framework script installs a matching gomobile tool version.
+needs Go, the version `olcos-core/mobile/go.mod` names, not an arbitrary older
+compiler. The core's build script installs a matching gomobile tool version.
 [Project configuration](../project.yml) · [framework script](../scripts/build-framework.sh) ·
-[upstream Go module](../olcrtc-upstream/go.mod).
+[core Go module](https://github.com/olcOS/olcos-core/blob/main/mobile/go.mod).
 
 These are instructions, **not a record of a successful build**. Record the
 exact Xcode, SDK, device/simulator and command when reporting your own result.
@@ -45,24 +45,28 @@ brew install xcodegen gh go
 ./scripts/build-framework.sh
 ```
 
-The script binds the olcrtc core's `mobile` package (the `olcrtc-upstream`
-submodule, which tracks [ghostlane-project/olcrtc](https://github.com/ghostlane-project/olcrtc),
-the Apache-2.0 continuation of the archived upstream), `gomobile/tunstack`,
-`gomobile/bond` and olcos-core's `olcos` package into one `App/Mobile.xcframework`. It copies two
-small shims into the submodule for the bind (the time-only log prefix and the
-`ipsec` interface filter, `scripts/mobile-shim/`) and removes them on exit.
+The Go core lives in the `olcos-core` submodule
+([olcOS/olcos-core](https://github.com/olcOS/olcos-core)), the same core the
+Android app binds. The script calls its `scripts/build-ios.sh`, which binds
+the olcrtc client (`olcrtc/`: a release of
+[ghostlane-project/olcrtc](https://github.com/ghostlane-project/olcrtc), the
+Apache-2.0 continuation of the archived upstream, plus the olcOS commits),
+`mobile/tunstack`, `mobile/bond` and the Xray engine (package `olcos`) into one
+`App/Mobile.xcframework`. Nothing is patched or copied into the tree for the
+build: the olcOS changes are commits in olcos-core.
 
-`scripts/olcrtc-core.patch`, when it exists, is olcOS's patch series for the
-pinned core: the framework build, CI's core tests, `srv.sh` and the app's
-server update all apply it, so the app and the server run the same core.
-Today the series carries the Telemost framing (each frame one RTP packet,
-data as interframes, keyframes rare, paced at what comes back acknowledged),
-which Telemost's media server needs since October 2026; every step skips a
-missing series. A server records the series' SHA-256 in
+The server runs the same core. `olcos-core/server/olcrtc-core.patch` is the
+olcOS commits as one patch series on top of the upstream commit both sides pin
+(`AppConstants.upstreamCorePin`, `OLCRTC_COMMIT` in `olcos-core/olcrtc.upstream`).
+The app bundles it with `srv.sh`, and the install and the app's server update
+apply it before building the server. Today the series carries the Telemost
+framing (each frame one RTP packet, data as interframes, keyframes rare, paced
+at what comes back acknowledged), which Telemost's media server needs since
+October 2026. A server records the series' SHA-256 in
 `<deploy dir>/.olcos-core-patch` once it applied it, and the app compares
-that, with the commit, to tell a current core from a stale one. **Do not run the build over
-uncommitted edits to files a series touches**: the script restores them with
-Git. [Build implementation](../scripts/build-framework.sh) ·
+that, with the commit, to tell a current core from a stale one.
+[Build implementation](../scripts/build-framework.sh) ·
+[how olcos-core tracks olcrtc](https://github.com/olcOS/olcos-core/blob/main/docs/olcrtc.md) ·
 [wiring checks](../scripts/test_core_patch.py).
 
 The app shows the licence and notice texts of everything it links (Settings →
@@ -71,13 +75,12 @@ are verbatim copies of the submodule's `LICENSE`, `NOTICE` and
 `docs/upstream-license-wtfpl.txt`; the Go modules and Swift packages are
 generated into `App/Licenses/third-party-*.txt` by
 `python3 scripts/gen-third-party-notices.py`. Refresh both whenever the
-submodules, `gomobile/go.mod` or the Swift packages change; `Tests/test_licenses.py`
+olcos-core submodule or the Swift packages change; `Tests/test_licenses.py`
 fails on a stale core copy.
 
-Rebuild when the submodule pin, wrapper module, tunstack, shims, patch series or
-build script changes; an older binary is not proof that newly referenced
-generated symbols exist. [Framework inputs](../scripts/build-framework.sh) ·
-[wrapper module](../gomobile/go.mod).
+Rebuild when the olcos-core submodule moves or the build scripts change; an
+older binary is not proof that newly referenced generated symbols exist.
+[Framework inputs](../scripts/build-framework.sh).
 
 ### Option B — fetch a matching released framework
 
@@ -91,8 +94,8 @@ GH_REPO=olcOS/olcos ./scripts/fetch-framework.sh v2.0.2
 The script needs `gh`, `unzip` and `python3`. It downloads the three assets
 through `gh`, verifies the archive against `SHA256SUMS`, and refuses a binary
 whose provenance `input_sha256` does not match the fingerprint of your
-checkout (the build scripts, shims, core patch series, gomobile sources and
-the upstream submodule). Only then does it replace `App/Mobile.xcframework`. Run it
+checkout (the olcos-core commit and the build scripts; local edits in the
+submodule never match). Only then does it replace `App/Mobile.xcframework`. Run it
 without a tag to use the default from `scripts/cut-release.py --dry-run`;
 `./scripts/fetch-framework.sh --cache-key` prints the fingerprint used for
 CI caching. Authenticate with `gh auth login` if your environment requires it.
@@ -156,9 +159,9 @@ xcodebuild test \
   -only-testing:olcrtc-ios-tests/SSHHostKeyVerificationTests
 ```
 
-The project includes a server-parity pre-build phase, so even simulator builds
-need the initialized upstream submodule. Simulator testing cannot validate a
-running iOS packet-tunnel provider or device entitlement behavior.
+Even simulator builds need the initialized olcos-core submodule: the app
+bundles the server scripts and Go sources from it. Simulator testing cannot
+validate a running iOS packet-tunnel provider or device entitlement behavior.
 [Project](../project.yml) · [test class](../Tests/SSHHostKeyVerificationTests.swift).
 
 ## Additional checks
@@ -178,24 +181,27 @@ Ubuntu runner, VM or container) with Python 3, Bash and GNU command-line tools.
 The SSH audit executes Linux server-shell fragments; macOS's default BSD
 `sed` is not an equivalent test environment, even though the harness is Python.
 Do not classify those platform failures as native iOS test failures.
-[SSH audit harness](../scripts/test_ssh_audit_481.py) · [server scripts](../scripts/rotate-key.sh).
+[SSH audit harness](../scripts/test_ssh_audit_481.py) ·
+[server scripts](https://github.com/olcOS/olcos-core/tree/main/server).
 
 ```bash
-python3 scripts/parity_check.py
+python3 olcos-core/scripts/parity_check.py
 python3 scripts/test_ssh_audit_481.py
-bash -n scripts/srv.sh scripts/add-carrier.sh scripts/rotate-key.sh
+bash -n olcos-core/server/srv.sh olcos-core/server/add-carrier.sh olcos-core/server/rotate-key.sh
 ```
 
-The standalone Python parity check can also run on macOS and remains an Xcode
-pre-build check; that does not make the shell-executing SSH regressions portable
-to BSD tooling. [Parity checker](../scripts/parity_check.py) · [project](../project.yml).
+The parity check (srv.sh against upstream's `install.sh`) belongs to
+olcos-core and runs in its CI; this repository's CI runs it again with the
+Linux source tests. It can also run on macOS; that does not make the
+shell-executing SSH regressions portable to BSD tooling.
+[Parity checker](https://github.com/olcOS/olcos-core/blob/main/scripts/parity_check.py).
 
 **macOS native toolchain checks:**
 
 ```bash
-# Resolves dependencies and checks the local Go packet adapter and bonding
+# Checks the Go packet adapter and bonding in the core
 # (bond's tests run shaped in-process lanes for a few seconds).
-(cd gomobile && go mod tidy && go test ./tunstack ./bond/...)
+(cd olcos-core/mobile && go test ./tunstack ./bond/...)
 
 # Requires SwiftLint.
 swiftlint lint
@@ -207,7 +213,7 @@ deployment. `go test ./tunstack` checks the package; if it reports
 CI's configured checks also include Xcode tests and SwiftLint, with docs-only
 path exclusions. A workflow definition or cache hit is not test evidence.
 [SSH audit tests](../scripts/test_ssh_audit_481.py) ·
-[tunstack](../gomobile/tunstack) · [CI](../.github/workflows/ci.yml).
+[tunstack](https://github.com/olcOS/olcos-core/tree/main/mobile/tunstack) · [CI](../.github/workflows/ci.yml).
 
 ### Native-device evidence
 
@@ -266,14 +272,14 @@ or change version counters as an incidental build step.
 
 | Failure | Action |
 |---|---|
-| Missing upstream files / parity input | Run `git submodule update --init --recursive`; verify the checked-out pin. |
+| Missing `olcos-core` files | Run `git submodule update --init --recursive`; verify the checked-out core commit. |
 | `Mobile.xcframework` missing | Use Option A or a matching asset from Option B, then regenerate the project. |
 | gomobile cannot find Xcode/iOS SDK | Check `xcode-select -p`, full Xcode installation and platform components. |
 | Unknown simulator destination | List available devices and replace the placeholder UDID. |
-| Parity reports drift | Inspect local adaptation and the pinned `install.sh`; adopt or explicitly reject upstream changes under the checked markers. Never disable parity as a workaround. |
+| Parity reports drift | A change for olcos-core: inspect its `server/srv.sh` against upstream's `install.sh` and adopt or explicitly reject upstream changes under the checked markers. Never disable parity as a workaround. |
 | VPN permission fails on device | Inspect installed signing/entitlements and iOS permission evidence; do not infer capability from the signing-account label. |
 | Network operation fails in otherwise green tests | Isolate the actual device/network/server path; mocks and simulator compilation are not end-to-end proof. |
 
 The underlying diagnostics are implemented in the [framework scripts](../scripts/build-framework.sh),
-[parity checker](../scripts/parity_check.py), [project](../project.yml) and
+[parity checker](https://github.com/olcOS/olcos-core/blob/main/scripts/parity_check.py), [project](../project.yml) and
 [VPN controller](../App/Core/VPNController.swift).

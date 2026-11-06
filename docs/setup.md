@@ -63,7 +63,7 @@ the upstream server; installation changes the host and can replace existing
 `olcrtc-server-*` containers and old deploy directories.
 Use a dedicated/test VPS first, inspect the script and back up relevant server
 configuration before reinstalling. Do not treat reinstall as a harmless
-connectivity diagnostic. [Installer](../scripts/srv.sh).
+connectivity diagnostic. [Installer](https://github.com/olcOS/olcos-core/blob/main/server/srv.sh).
 
 1. Obtain the host, SSH port, account and authentication material through your
    VPS provider's trusted administration channel. Ensure the account has the
@@ -109,7 +109,7 @@ host and port, not the relay's temporary localhost endpoint.
 
 - IPv4 TCP is forwarded. UDP DNS receives a truncated response to trigger
   TCP retry; other UDP is dropped. Apps that can retry over TCP may work, but
-  UDP-only protocols will not. [tunstack](../gomobile/tunstack/tunstack.go).
+  UDP-only protocols will not. [tunstack](https://github.com/olcOS/olcos-core/blob/main/mobile/tunstack/tunstack.go).
 - IPv6 packets are captured and dropped, not forwarded or intentionally
   released to a direct route. This is not IPv6 connectivity support.
   [Packet pump](../Tunnel/PacketTunnelProvider.swift).

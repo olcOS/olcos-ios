@@ -20,15 +20,14 @@ archived on 2026-09-30, on the same wire format.
 | [`App/Core/VPNController.swift`](../App/Core/VPNController.swift) | System profile lifecycle and observed NE status |
 | [`Tunnel/`](../Tunnel) | Separate NetworkExtension process, its own core instance and packet pump |
 | [`Widgets/`](../Widgets) · [`Shared/`](../Shared) | Status widget (Home Screen, StandBy, CarPlay, Lock Screen), the iOS 18 Control Centre toggle, and the state and intents they share with the app |
-| [`gomobile/tunstack/`](../gomobile/tunstack) | IP-to-SOCKS adapter using Outline SDK's lwIP/transport facilities |
-| [`gomobile/bond/`](../gomobile/bond) | Bonding: the client that carries one connection over every lane of a whole-server connection, and the `olcos-bond` server built on the VPS |
-| [`olcos-core/`](../olcos-core) | Pinned Go module embedding xray-core (VLESS · REALITY); bound into the same framework as the `olcos` package |
+| [`olcos-core/`](https://github.com/olcOS/olcos-core) (submodule) | The Go core and the server side, shared with the Android app: `olcrtc/` (an upstream release plus the olcOS commits), `mobile/` (the gomobile module: `tunstack`, `bond`, `agent`), the Xray engine embedding xray-core (VLESS · REALITY, package `olcos`) and `server/` (`srv.sh`, the patch series, `add-carrier.sh`, `rotate-key.sh`, the Xray installer) |
+| `olcos-core/mobile/tunstack/` | IP-to-SOCKS adapter using Outline SDK's lwIP/transport facilities |
+| `olcos-core/mobile/bond/` | Bonding: the client that carries one connection over every lane of a whole-server connection, and the `olcos-bond` server built on the VPS |
 | [`App/Core/XrayEngine.swift`](../App/Core/XrayEngine.swift) · [`Tunnel/XrayTunnelSession.swift`](../Tunnel/XrayTunnelSession.swift) | The xray engine behind `TunnelEngine` (proxy mode) and its tunnel-side session (VPN mode) |
-| [`olcrtc-upstream/`](../olcrtc-upstream) | Pinned Go core and upstream installer, consumed during build/parity checks |
-| [`scripts/`](../scripts) | Framework build/shims, server operations, packaging and local checks |
+| [`scripts/`](../scripts) | Framework build and download, packaging, release and local checks |
 
-`App/Mobile.xcframework` combines upstream mobile, local tunstack and bond and the
-olcos-core `olcos` package in one gomobile bind; `VPNConfig.engine` selects
+`App/Mobile.xcframework` combines the olcrtc client, tunstack, bond and the
+`olcos` package in one gomobile bind (olcos-core's `scripts/build-ios.sh`); `VPNConfig.engine` selects
 which core a connection attempt drives (`olcrtc` by default, `xray` for a
 VLESS · REALITY record). The app and extension each link the framework; they do not
 communicate by sharing a single in-app Go runtime.
@@ -185,7 +184,7 @@ The provider installs IPv4 and IPv6 default routes, passes only IPv4 packets
 to tunstack and drops IPv6. The SOCKS core supports TCP CONNECT; the packet
 adapter uses DNS truncation rather than general UDP forwarding.
 The extension's default loopback port is `18080`.
-[Provider](../Tunnel/PacketTunnelProvider.swift) · [tunstack](../gomobile/tunstack/tunstack.go) ·
+[Provider](../Tunnel/PacketTunnelProvider.swift) · [tunstack](https://github.com/olcOS/olcos-core/blob/main/mobile/tunstack/tunstack.go) ·
 [VPNConfig](../App/Models/VPNConfig.swift).
 
 Provider-originated carrier/resolver sockets use the underlying interface;
@@ -261,12 +260,12 @@ Installation uploads/runs bundled scripts and parses their outputs; ordinary
 user traffic does not need an SSH session per request. `srv.sh` uses persistent
 deploy directories under `/opt`, Podman containers and the upstream server.
 Reinstallation can replace earlier containers/deploy directories.
-[Provisioning](../App/Core/Provisioning.swift) · [installer](../scripts/srv.sh).
+[Provisioning](../App/Core/Provisioning.swift) · [installer](https://github.com/olcOS/olcos-core/blob/main/server/srv.sh).
 
 Adding another carrier uses a sibling configuration/container sharing a deploy
 directory, binary and key; key rotation and recovery must preserve the related
 script/output contracts.
-[Add-carrier script](../scripts/add-carrier.sh) · [key rotation](../scripts/rotate-key.sh).
+[Add-carrier script](https://github.com/olcOS/olcos-core/blob/main/server/add-carrier.sh) · [key rotation](https://github.com/olcOS/olcos-core/blob/main/server/rotate-key.sh).
 
 Device invites hand a server's connections to another device without SSH
 access. `InviteSync` builds the list from the records the host links, encrypts
@@ -290,7 +289,7 @@ rooms that are running, benching a room whose connections die at once. VPN
 mode keeps one room. Telemost lanes are created from the Yandex account like
 the main room and renewed together with it.
 [Engine](../App/Core/TunnelEngine.swift) · [balancer](../App/Core/LaneBalancer.swift) ·
-[script](../scripts/add-carrier.sh).
+[script](https://github.com/olcOS/olcos-core/blob/main/server/add-carrier.sh).
 
 Room auto-update is one rule per protocol (`RoomRotationRule`). Telemost is Off
 or Automatic and is renewed ahead of its 24-hour expiry by
@@ -341,9 +340,9 @@ records (`ServerBundle`): every protocol and room as a lane, under the shared
 key. It leads its group on the main screen, which folds the protocols it joins
 away behind one row. `BundleSync` also deploys the server's bond endpoint over
 SSH (`SSHRunner+Bond`): the `olcos-bond` program, built on the server from the
-`gomobile/bond` sources the app carries, in a container on the host network
+`olcos-core/mobile/bond` sources the app carries, in a container on the host network
 with the tunnel key mounted read-only. In proxy mode the engine then puts the
-bond client (`gomobile/bond`, bound into the framework) on the port apps use
+bond client (`olcos-core/mobile/bond`, bound into the framework) on the port apps use
 instead of the balancer: every connection opens one sub-connection per lane to
 the endpoint, through the lane's tunnel, whose exit reaches the server's own
 public address. The stream is cut into numbered frames; each lane carries as
@@ -380,7 +379,7 @@ too: the extension joins up to three rooms (never a video transport), on by
 default; the switch in Settings (`SettingsStore.vpnBonding`) is an escape hatch
 for the extension's ~50 MB memory limit and turns the VPN back to one lane.
 [Bundle](../App/Models/ServerBundle.swift) · [sync](../App/Services/BundleSync.swift) ·
-[bonding](../gomobile/bond/protocol.go) · [server script](../App/Core/SSHRunner+Bond.swift).
+[bonding](https://github.com/olcOS/olcos-core/blob/main/mobile/bond/protocol.go) · [server script](../App/Core/SSHRunner+Bond.swift).
 
 ## Mode and lifecycle ownership
 

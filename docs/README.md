@@ -25,11 +25,13 @@ native screenshot, benchmark or test result; their HTML source and render
 script live in `assets/src/`. `assets/social-preview.png` is the image for the
 repository's social preview (Settings → Social preview).
 
-This repository also holds the Go core shared with the
-[Android app](https://github.com/olcOS/olcos-android): `gomobile/` (the
-tun2socks glue, room bonding and the server agent), `olcos-core/` (the Xray
-engine) and the `olcrtc-upstream/` submodule. The WebRTC core itself is the
-separate [ghostlane-project/olcrtc](https://github.com/ghostlane-project/olcrtc)
+The Go core shared with the
+[Android app](https://github.com/olcOS/olcos-android) lives in
+[olcOS/olcos-core](https://github.com/olcOS/olcos-core), the `olcos-core/`
+submodule here: the olcrtc client with the olcOS commits, the tun2socks glue,
+room bonding, the server agent, the Xray engine and the server scripts. The
+WebRTC core itself comes from the separate
+[ghostlane-project/olcrtc](https://github.com/ghostlane-project/olcrtc)
 project. Follow its documentation for protocol/server details, and use this
 repository's guides for iOS-specific behavior and limitations. Windows and
 macOS clients are plans only.

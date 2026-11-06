@@ -83,7 +83,7 @@ UDP DNS is truncated to encourage TCP retry and other UDP is dropped.
 Provider-originated sockets use the underlying network; `includeAllNetworks`
 is deliberately not enabled. These are implementation boundaries, **not a
 guarantee that no traffic can ever leave directly**.
-[PacketTunnelProvider](Tunnel/PacketTunnelProvider.swift) · [tunstack](gomobile/tunstack/tunstack.go).
+[PacketTunnelProvider](Tunnel/PacketTunnelProvider.swift) · [tunstack](https://github.com/olcOS/olcos-core/blob/main/mobile/tunstack/tunstack.go).
 
 There is no universal kill-switch, anonymity, carrier invisibility or
 unblockability claim. Consider traffic before connection, after disconnection,

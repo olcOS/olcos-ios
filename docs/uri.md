@@ -78,7 +78,7 @@ https://pool.example.org/sub
 The payload is the upstream plain-text list format: global `#key: value`
 fields, one connection URI per line and per-server `##key: value` fields.
 The scheme is an iOS-client convention; the list format is documented by
-[upstream](../olcrtc-upstream/docs/sub.md).
+[upstream](https://github.com/olcOS/olcos-core/blob/main/olcrtc/docs/sub.md).
 
 The app fetches via HTTPS and shows an import confirmation. `#name` becomes a
 group, and entries use `##name` with fallback naming; unknown fields are ignored.
@@ -166,7 +166,7 @@ vless://<uuid>@<host>:<port>?encryption=none&flow=xtls-rprx-vision&security=real
 The common client-link shape for an Xray VLESS server behind REALITY. The app
 accepts it from the same paste / QR / share venues as an `olcrtc://` link and
 stores it as a separate connection kind; it is carried by the embedded
-[olcos-core](../olcos-core) engine, not by the olcrtc core. Only
+[olcos-core](https://github.com/olcOS/olcos-core) engine, not by the olcrtc core. Only
 `security=reality`, `type=tcp` and `encryption=none` are supported; other
 variants are rejected with a readable error rather than stored. `pbk` and `sni`
 are required; `sid`, `fp` (default `chrome`), `flow` and `spx` (default `/`) are

@@ -5,7 +5,7 @@
 <h1 align="center">olcOS для iPhone и iPad</h1>
 
 <p align="center">
-  Исходный код приложения olcOS для iOS и iPadOS 17+ и общего ядра на Go.<br>
+  Исходный код приложения olcOS для iOS и iPadOS 17+.<br>
   olcOS помогает обойти белые списки мобильного интернета через видеозвонки.
 </p>
 
@@ -81,8 +81,9 @@ xcodegen generate --spec project.yml
 open olcrtc-ios.xcodeproj
 ```
 
-В репозитории лежит и общее ядро на Go, его же использует приложение для Android: `gomobile/` (обвязка туннеля,
-склейка комнат и агент сервера), `olcos-core/` (движок Xray) и подмодуль `olcrtc-upstream/`.
+Ядро на Go и серверная часть лежат в отдельном репозитории [olcOS/olcos-core](https://github.com/olcOS/olcos-core),
+он подключён сюда подмодулем `olcos-core/`. Это же ядро использует приложение для Android: клиент olcrtc, обвязка
+туннеля, склейка комнат, агент сервера, движок Xray и скрипты установки сервера.
 
 Документация:
 
@@ -106,5 +107,5 @@ open olcrtc-ios.xcodeproj
 olcOS распространяется под лицензией [MIT](LICENSE), Copyright (c) 2026 Hotelk52339. Ядро olcrtc
 ([ghostlane-project/olcrtc](https://github.com/ghostlane-project/olcrtc), продолжение заархивированного
 [openlibrecommunity/olcrtc](https://github.com/openlibrecommunity/olcrtc)) распространяется под
-[Apache-2.0](olcrtc-upstream/LICENSE) с [NOTICE](olcrtc-upstream/NOTICE), исходная лицензия апстрима —
-[WTFPL](olcrtc-upstream/docs/upstream-license-wtfpl.txt). Движок Xray-core — [MPL-2.0](https://github.com/XTLS/Xray-core/blob/main/LICENSE).
+[Apache-2.0](https://github.com/olcOS/olcos-core/blob/main/olcrtc/LICENSE) с [NOTICE](https://github.com/olcOS/olcos-core/blob/main/olcrtc/NOTICE), исходная лицензия апстрима —
+[WTFPL](https://github.com/olcOS/olcos-core/blob/main/olcrtc/docs/upstream-license-wtfpl.txt). Движок Xray-core — [MPL-2.0](https://github.com/XTLS/Xray-core/blob/main/LICENSE).
