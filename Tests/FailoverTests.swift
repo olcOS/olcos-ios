@@ -248,8 +248,8 @@ final class FailoverTests: XCTestCase {
         let store = ConnectionStore()
         let serverStore = ServerHostStore()
         let primary = record("primary", carrier: "wbstream", transport: "vp8channel")
-        let best    = record("best",    carrier: "jitsi", transport: "datachannel")  // matrix rank 0
-        let worse   = record("worse",   carrier: "jitsi", transport: "vp8channel")   // matrix rank 1
+        let best    = record("best",    carrier: "jitsi", transport: "vp8channel")   // matrix rank 0
+        let worse   = record("worse",   carrier: "jitsi", transport: "datachannel")  // matrix rank 1
         store.connections = [primary, best, worse]
         var host = ServerHost(label: "H", host: "1.2.3.4")
         host.lastConnectionID = primary.id
@@ -267,8 +267,8 @@ final class FailoverTests: XCTestCase {
         let store = ConnectionStore()
         let serverStore = ServerHostStore()
         let primary  = record("primary",  carrier: "wbstream", transport: "vp8channel")
-        let broken   = record("broken",   carrier: "jitsi", transport: "datachannel")  // matrix rank 0
-        let verified = record("verified", carrier: "jitsi", transport: "vp8channel")   // matrix rank 1
+        let broken   = record("broken",   carrier: "jitsi", transport: "vp8channel")   // matrix rank 0
+        let verified = record("verified", carrier: "jitsi", transport: "datachannel")  // matrix rank 1
         store.connections = [primary, broken, verified]
         var host = ServerHost(label: "H", host: "1.2.3.4")
         host.lastConnectionID = primary.id
